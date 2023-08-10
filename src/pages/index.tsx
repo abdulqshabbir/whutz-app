@@ -1,13 +1,8 @@
-import { signIn, signOut, useSession } from "next-auth/react";
-import Head from "next/head";
-import Link from "next/link";
-import { api } from "@/utils/api";
 import { Button } from "@/components/ui/Button";
 import { H1 } from "@/components/ui/typography/H1";
+import Head from "next/head";
 
 export default function Home() {
-  const hello = api.example.hello.useQuery({ text: "from tRPC" });
-
   return (
     <>
       <Head>
