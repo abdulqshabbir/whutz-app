@@ -1,8 +1,7 @@
-import { AccountBarDropdown } from "@/components/AccountDropdown";
-import { ChatHistory } from "@/components/ChatHistory";
-import { Textarea } from "@/components/ui/TextArea";
-import { Input } from "@/components/ui/input";
-import Head from "next/head";
+import { AccountBarDropdown } from "@/components/AccountDropdown"
+import { ChatHistory } from "@/components/ChatHistory"
+import { Textarea } from "@/components/ui/TextArea"
+import Head from "next/head"
 
 function AccountBar() {
   return (
@@ -11,11 +10,11 @@ function AccountBar() {
     >
       <AccountBarDropdown />
     </div>
-  );
+  )
 }
 
 function FriendsBar() {
-  return null;
+  return null
 }
 
 function ChatRoom() {
@@ -32,7 +31,7 @@ function ChatRoom() {
         />
       </div>
     </div>
-  );
+  )
 }
 
 export default function Home() {
@@ -49,5 +48,5 @@ export default function Home() {
         <ChatRoom />
       </main>
     </>
-  );
+  )
 }
