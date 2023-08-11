@@ -1,29 +1,15 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
-import { Button } from "@/components/ui/Button";
-import { H1 } from "@/components/ui/typography/H1";
+import { AccountBarDropdown } from "@/components/AccountDropdown";
+import { ChatHistory } from "@/components/ChatHistory";
+import { Textarea } from "@/components/ui/TextArea";
+import { Input } from "@/components/ui/input";
 import Head from "next/head";
-import { LogOut } from "lucide-react";
-
-const ACCOUNT_BAR_WIDTH = 70;
 
 function AccountBar() {
   return (
     <div
-      className={`flex min-w-[${ACCOUNT_BAR_WIDTH}px] flex-col items-center gap-4 bg-gray-200`}
+      className={`flex min-w-[75px] flex-col items-center gap-4 bg-gray-200`}
     >
-      <div className="mt-2 flex h-12 w-12 cursor-pointer items-center justify-center rounded-md p-2 hover:bg-gray-300">
-        <Avatar className="cursor-pointer">
-          <AvatarImage
-            src="https://github.com/abdulqshabbir.png"
-            alt="@shadcn"
-          />
-          <AvatarFallback>Abdul</AvatarFallback>
-        </Avatar>
-      </div>
-      <LogOut
-        size={32}
-        className="h-12 w-12 cursor-pointer rounded-md p-2 hover:bg-gray-300"
-      />
+      <AccountBarDropdown />
     </div>
   );
 }
@@ -33,7 +19,20 @@ function FriendsBar() {
 }
 
 function ChatRoom() {
-  return null;
+  return (
+    <div className="flex flex-1 flex-col bg-gray-100">
+      <div className="flex flex-1 flex-col">
+        <ChatHistory />
+      </div>
+      <div className="m-2 flex h-24 bg-gray-500">
+        <Textarea
+          className="h-full bg-gray-50 p-4"
+          style={{ resize: "none" }}
+          placeholder="Write a message"
+        />
+      </div>
+    </div>
+  );
 }
 
 export default function Home() {
