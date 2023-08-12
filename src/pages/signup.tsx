@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/Card"
 import { Separator } from "@/components/ui/separator"
 import Image from "next/image"
+import { signIn } from "next-auth/react"
 
 const SignUp = ({}) => {
   return (
@@ -21,7 +22,11 @@ const SignUp = ({}) => {
           <Separator />
         </CardHeader>
         <CardContent className="mt-4 flex flex-col gap-2">
-          <Button variant={"outline"} className="w-full text-lg font-light">
+          <Button
+            onClick={() => void signIn("google")}
+            variant={"outline"}
+            className="w-full text-lg font-light"
+          >
             <Image
               width={15}
               height={15}
