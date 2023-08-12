@@ -6,8 +6,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/DropdownMenu";
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+} from "@/components/ui/DropdownMenu"
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
 
 export function AccountBarDropdown() {
   return (
@@ -34,5 +34,5 @@ export function AccountBarDropdown() {
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

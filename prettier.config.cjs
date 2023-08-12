@@ -2,6 +2,6 @@
 const config = {
   plugins: [require.resolve("prettier-plugin-tailwindcss")],
   semi: false,
-};
+}
 
-module.exports = config;
+module.exports = config
