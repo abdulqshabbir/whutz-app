@@ -4,6 +4,8 @@ import {
   type DefaultSession,
   type NextAuthOptions,
 } from "next-auth"
+import { DrizzleAdapter } from "@/pages/api/auth/[...nextauth]"
+import { db } from "@/lib/db/dbClient"
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -32,6 +34,7 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
+  adapter: DrizzleAdapter(db),
   callbacks: {
     session: ({ session, token }) => ({
       ...session,

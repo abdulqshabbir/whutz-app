@@ -2,7 +2,7 @@ import type { Config } from "drizzle-kit"
 import { env } from "./env.mjs"
 
 export default {
-  schema: "./schema/*",
+  schema: "./src/lib/db/schema.ts",
   out: "./src/lib/db",
   driver: "turso",
   dbCredentials: {
