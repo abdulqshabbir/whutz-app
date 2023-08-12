@@ -6,7 +6,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/DropdownMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 
 export function AccountBarDropdown() {
