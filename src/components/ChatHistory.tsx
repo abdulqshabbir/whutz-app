@@ -102,7 +102,7 @@ function FriendMessage({ message }: { message: Message }) {
       <div className="flex flex-col items-center gap-1">
         <Avatar>
           <AvatarImage
-            src="htts://github.com/abdulqshabbir.png"
+            src="https://github.com/abdulqshabbir.png"
             alt="@shadcn"
           />
           <AvatarFallback className="bg-blue-100">A</AvatarFallback>
