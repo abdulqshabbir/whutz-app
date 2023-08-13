@@ -1,8 +1,10 @@
 import { AccountBarDropdown } from "@/components/AccountDropdown"
 import { ChatHistory } from "@/components/ChatHistory"
 import { Textarea } from "@/components/ui/TextArea"
+import { useIsClient } from "@/hooks/useIsClient"
 import { useSession } from "next-auth/react"
 import Head from "next/head"
+import { useRouter } from "next/navigation"
 
 function AccountBar() {
   return (
@@ -20,7 +22,11 @@ function FriendsBar() {
 
 function ChatRoom() {
   const session = useSession()
-  console.log("session!!!", session)
+  const router = useRouter()
+  const isClient = useIsClient()
+  if (isClient && (!session || session.status === "unauthenticated")) {
+    void router.push("/signup")
+  }
   return (
     <div className="flex flex-1 flex-col bg-gray-100">
       <div className="flex flex-1 flex-col">

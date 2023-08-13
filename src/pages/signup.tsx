@@ -8,9 +8,17 @@ import {
 } from "@/components/ui/Card"
 import { Separator } from "@/components/ui/separator"
 import Image from "next/image"
-import { signIn } from "next-auth/react"
+import { signIn, useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { useIsClient } from "@/hooks/useIsClient"
 
 const SignUp = ({}) => {
+  const isClient = useIsClient()
+  const router = useRouter()
+  const session = useSession()
+  if (isClient && session.status === "authenticated") {
+    void router.push("/")
+  }
   return (
     <div className="flex min-h-screen items-center justify-center">
       <Card className="min-w-[500px] p-4">
@@ -23,7 +31,9 @@ const SignUp = ({}) => {
         </CardHeader>
         <CardContent className="mt-4 flex flex-col gap-2">
           <Button
-            onClick={() => void signIn("google")}
+            onClick={() => {
+              void signIn("google")
+            }}
             variant={"outline"}
             className="w-full text-lg font-light"
           >
@@ -36,7 +46,11 @@ const SignUp = ({}) => {
             />
             <span>Google</span>
           </Button>
-          <Button variant={"outline"} className="w-full text-lg font-light">
+          <Button
+            variant={"outline"}
+            className="w-full text-lg font-light"
+            disabled
+          >
             <Image
               width={12}
               height={12}
@@ -46,7 +60,11 @@ const SignUp = ({}) => {
             />
             <span>Facebook</span>
           </Button>
-          <Button variant={"outline"} className="w-full text-lg font-light">
+          <Button
+            variant={"outline"}
+            className="w-full text-lg font-light"
+            disabled
+          >
             <Image
               width={15}
               height={15}

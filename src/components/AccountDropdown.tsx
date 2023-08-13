@@ -8,8 +8,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
+import { signOut } from "next-auth/react"
+import { useRouter } from "next/router"
 
 export function AccountBarDropdown() {
+  const router = useRouter()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -30,7 +33,13 @@ export function AccountBarDropdown() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>Account Settings</DropdownMenuItem>
-          <DropdownMenuItem>Log out</DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              void signOut().then(() => router.push("/signup"))
+            }}
+          >
+            Log out
+          </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
