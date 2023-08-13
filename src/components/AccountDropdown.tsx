@@ -10,6 +10,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
 import { signOut, useSession } from "next-auth/react"
 import { useRouter } from "next/router"
+import { UserPlus, Settings, LogOut } from "lucide-react"
 
 export function AccountBarDropdown() {
   const router = useRouter()
@@ -31,17 +32,25 @@ export function AccountBarDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="relative left-4 top-2 w-56">
         <DropdownMenuLabel>
-          {session?.data?.user?.name?.split(" ")[0]}&apos; Account
+          {session?.data?.user?.name?.split(" ")[0]}&apos;s Account
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>Account Settings</DropdownMenuItem>
+          <DropdownMenuItem>
+            <UserPlus className="mr-4" />
+            <span>Add Friend</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Settings className="mr-4" />
+            <span>Account Settings</span>
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
               void signOut().then(() => router.push("/signup"))
             }}
           >
-            Log out
+            <LogOut className="mr-4" />
+            <span>Log out</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
