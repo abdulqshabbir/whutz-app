@@ -3,6 +3,7 @@ import { format, fromUnixTime } from "date-fns"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar"
 import P from "./ui/typography/P"
 import { cn } from "@/lib/utils"
+import { useSession } from "next-auth/react"
 
 type Message = {
   from: "ME" | "FRIEND"
@@ -77,6 +78,7 @@ function convertTimestampToTime(timestamp: number) {
 }
 
 function UserMessage({ message }: { message: Message }) {
+  const session = useSession()
   return (
     <div className="m-8 flex items-start justify-end gap-6">
       <ChatWrapper from="ME">
@@ -85,7 +87,7 @@ function UserMessage({ message }: { message: Message }) {
       <div className="flex flex-col items-center gap-1">
         <Avatar>
           <AvatarImage
-            src="https://github.com/abdulqshabbir.png"
+            src={session?.data?.user?.image ?? undefined}
             alt="@shadcn"
           />
           <AvatarFallback className="bg-gray-300">A</AvatarFallback>

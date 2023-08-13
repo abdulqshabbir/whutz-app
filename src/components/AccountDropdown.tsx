@@ -8,18 +8,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
-import { signOut } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 import { useRouter } from "next/router"
 
 export function AccountBarDropdown() {
   const router = useRouter()
+  const session = useSession()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div className="mt-2 flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-gray-300">
           <Avatar className="cursor-pointer">
             <AvatarImage
-              src="https://github.com/abdulqshabbir.png"
+              src={session?.data?.user?.image ?? undefined}
               alt="@shadcn"
             />
             <AvatarFallback className="h-12 w-12 rounded-full bg-blue-200 p-4 hover:bg-blue-300">
