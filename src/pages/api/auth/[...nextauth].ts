@@ -1,9 +1,18 @@
-import { db, type DrizzleDB } from "@/lib/db/dbClient"
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
+/*
+  There seems to be a bug in the types for the drizzle-adapter and next-auth
+  which is why we have to use `any` in some places.
+*/
+
+import { type DrizzleDB } from "@/lib/db/dbClient"
 import { accounts, sessions, users, verificationTokens } from "@/lib/db/schema"
-import { type AdapterAccount } from "@auth/core/adapters"
+import { authOptions } from "@/server/auth"
 import { and, eq } from "drizzle-orm"
 import NextAuth, { type NextAuthOptions } from "next-auth"
-import { authOptions } from "@/server/auth"
 
 export function DrizzleAdapter(db: DrizzleDB): NextAuthOptions["adapter"] {
   return {
@@ -66,13 +75,13 @@ export function DrizzleAdapter(db: DrizzleDB): NextAuthOptions["adapter"] {
         .get()
     },
     linkAccount: async (rawAccount) => {
-      const updatedAccount = await db
+      const updatedAccount = (await db
         .insert(accounts)
         .values(rawAccount)
         .returning()
-        .get()
+        .get()) as unknown as any
 
-      const account: AdapterAccount = {
+      const account = {
         ...updatedAccount,
         type: updatedAccount.type,
         access_token: updatedAccount.access_token ?? undefined,
@@ -83,7 +92,6 @@ export function DrizzleAdapter(db: DrizzleDB): NextAuthOptions["adapter"] {
         expires_at: updatedAccount.expires_at ?? undefined,
         session_state: updatedAccount.session_state ?? undefined,
       }
-
       return account
     },
     getUserByAccount: async (account) => {
