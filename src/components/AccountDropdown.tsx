@@ -30,7 +30,9 @@ export function AccountBarDropdown() {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="relative left-4 top-2 w-56">
-        <DropdownMenuLabel>Abdul&apos;s Account</DropdownMenuLabel>
+        <DropdownMenuLabel>
+          {session?.data?.user?.name?.split(" ")[0]}&apos; Account
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>Account Settings</DropdownMenuItem>
