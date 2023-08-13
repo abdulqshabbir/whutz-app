@@ -6,5 +6,6 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 
 1. `git clone https://github.com/abdulqshabbir/whutz-app.git` (clone repo)
 2. `cd whutz-app` (move into project directory)
-3. `yarn` (install dependencies)
-4. `yarn dev` (start development server)
+3. Add a `.env` file to the project with all secrets
+4. `yarn` (install dependencies)
+5. `yarn dev` (start development server)
