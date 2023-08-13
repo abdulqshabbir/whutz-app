@@ -1,6 +1,7 @@
 import { AccountBarDropdown } from "@/components/AccountDropdown"
 import { ChatHistory } from "@/components/ChatHistory"
 import { Textarea } from "@/components/ui/TextArea"
+import { useSession } from "next-auth/react"
 import Head from "next/head"
 
 function AccountBar() {
@@ -18,6 +19,8 @@ function FriendsBar() {
 }
 
 function ChatRoom() {
+  const session = useSession()
+  console.log("session!!!", session)
   return (
     <div className="flex flex-1 flex-col bg-gray-100">
       <div className="flex flex-1 flex-col">

@@ -36,15 +36,19 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
+  session: {
+    strategy: "database",
+  },
   adapter: DrizzleAdapter(db),
   callbacks: {
-    session: ({ session, token }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: token.sub,
-      },
-    }),
+    session: ({ session }) => {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+        },
+      }
+    },
   },
   providers: [
     GoogleProvider({
