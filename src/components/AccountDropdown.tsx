@@ -7,53 +7,54 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu"
+
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
+import { LogOut, Settings } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
 import { useRouter } from "next/router"
-import { UserPlus, Settings, LogOut } from "lucide-react"
+import { AddFriendDialog } from "./AddFriendDialog"
 
 export function AccountBarDropdown() {
   const router = useRouter()
   const session = useSession()
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <div className="mt-2 flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-gray-300">
-          <Avatar className="cursor-pointer">
-            <AvatarImage
-              src={session?.data?.user?.image ?? undefined}
-              alt="@shadcn"
-            />
-            <AvatarFallback className="h-12 w-12 rounded-full bg-blue-200 p-4 hover:bg-blue-300">
-              AS
-            </AvatarFallback>
-          </Avatar>
-        </div>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="relative left-4 top-2 w-56">
-        <DropdownMenuLabel>
-          {session?.data?.user?.name?.split(" ")[0]}&apos;s Account
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <UserPlus className="mr-4" />
-            <span>Add Friend</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Settings className="mr-4" />
-            <span>Account Settings</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => {
-              void signOut().then(() => router.push("/signup"))
-            }}
-          >
-            <LogOut className="mr-4" />
-            <span>Log out</span>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <div className="mt-2 flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-gray-300">
+            <Avatar className="cursor-pointer">
+              <AvatarImage
+                src={session?.data?.user?.image ?? undefined}
+                alt="@shadcn"
+              />
+              <AvatarFallback className="h-12 w-12 rounded-full bg-blue-200 p-4 hover:bg-blue-300">
+                AS
+              </AvatarFallback>
+            </Avatar>
+          </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="relative left-4 top-2 w-56">
+          <DropdownMenuLabel>
+            {session?.data?.user?.name?.split(" ")[0]}&apos;s Account
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem>
+              <Settings className="mr-4" />
+              <span>Account Settings</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                void signOut().then(() => router.push("/signup"))
+              }}
+            >
+              <LogOut className="mr-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <AddFriendDialog />
+    </>
   )
 }
