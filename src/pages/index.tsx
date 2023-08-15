@@ -44,6 +44,7 @@ function ChatRoom() {
 }
 
 export default function Home() {
+  console.log("hi")
   return (
     <>
       <Head>
