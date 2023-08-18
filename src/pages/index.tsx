@@ -33,7 +33,8 @@ function ChatRoom() {
       cluster: env.NEXT_PUBLIC_PUSHER_CLUSTER,
     })
     const channel = pusher.subscribe("hello-channel")
-    const callback = (data: unkown) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const callback = (data: any) => {
       console.log("We recieved a push event! ", data)
     }
 
