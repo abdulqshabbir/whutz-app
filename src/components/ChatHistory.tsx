@@ -5,37 +5,15 @@ import P from "./ui/typography/P"
 import { cn } from "@/lib/utils"
 import { useSession } from "next-auth/react"
 
-type Message = {
+export type Message = {
   from: "ME" | "FRIEND"
   timestamp: number
   type: "text" | "image" | "video"
   content: string
 }
 
-const ChatHistory = ({}) => {
-  const messages: Message[] = [
-    {
-      from: "ME",
-      timestamp: 1691759516, // in seconds
-      type: "text",
-      content:
-        "Lorem ipsum lorem lorem lorem Lorem ipsum lorem lorem loremLorem ipsum lorem lorem loremLorem ipsum lorem lorem loremLorem ipsum lorem lorem loremLorem ipsum lorem lorem loremLorem ipsum lorem lorem lorem",
-    },
-    {
-      from: "FRIEND",
-      timestamp: 1691759516, // in seconds
-      type: "text",
-      content:
-        "Lorem ipsum lorem lorem lorem Lorem ipsum lorem lorem loremLorem ipsum lorem lorem loremLorem ipsum lorem lorem loremLorem ipsum lorem lorem loremLorem ipsum lorem lorem loremLorem ipsum lorem lorem lorem Lorem ipsum lorem lorem lorem Lorem ipsum lorem lorem loremLorem ipsum lorem lorem loremLorem ipsum lorem lorem loremLorem ipsum lorem lorem loremLorem ipsum lorem lorem loremLorem ipsum lorem lorem lorem",
-    },
-    {
-      from: "ME",
-      timestamp: 1691759516, // in seconds
-      type: "text",
-      content: "Lorem ipsum lorem lorem lorem",
-    },
-  ]
-  return messages.map((m) => (
+const ChatHistory = ({ messages }: { messages: Message[] }) => {
+  return messages?.map((m) => (
     <React.Fragment key={crypto.randomUUID()}>
       {m.from === "ME" ? (
         <UserMessage message={{ ...m }} />
@@ -55,7 +33,7 @@ function ChatWrapper({
 }) {
   return (
     <div
-      className={cn("min-h-[80px] w-full rounded-md bg-gray-300 p-2", {
+      className={cn("min-h-[40px] w-full rounded-md bg-gray-300 p-2", {
         "bg-gray-200": from === "ME",
         "bg-blue-100": from === "FRIEND",
       })}
@@ -80,7 +58,7 @@ function convertTimestampToTime(timestamp: number) {
 function UserMessage({ message }: { message: Message }) {
   const session = useSession()
   return (
-    <div className="m-8 flex items-start justify-end gap-6">
+    <div className="mx-8 my-4 flex items-start justify-end gap-6">
       <ChatWrapper from="ME">
         <ChatText>{message.content}</ChatText>
       </ChatWrapper>
@@ -100,7 +78,7 @@ function UserMessage({ message }: { message: Message }) {
 
 function FriendMessage({ message }: { message: Message }) {
   return (
-    <div className="m-8 flex items-start justify-start gap-6">
+    <div className="mx-8 my-4 flex items-start justify-start gap-6">
       <div className="flex flex-col items-center gap-1">
         <Avatar>
           <AvatarImage
