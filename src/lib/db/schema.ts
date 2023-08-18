@@ -1,56 +1,78 @@
-import { integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core"
-import { type AdapterAccount } from "next-auth/adapters"
+/* eslint-disable no-var */
+import { sql } from "drizzle-orm"
+import {
+  integer,
+  numeric,
+  primaryKey,
+  sqliteTable,
+  text,
+} from "drizzle-orm/sqlite-core"
 
-export const test = sqliteTable("test", {
-  id: integer("id").primaryKey().notNull(),
-  text: text("text").notNull(),
-})
-
-export const users = sqliteTable("users", {
-  id: text("id").notNull().primaryKey(),
-  name: text("name"),
-  email: text("email").notNull(),
-  emailVerified: integer("emailVerified", { mode: "timestamp_ms" }),
-  image: text("image"),
-})
-
-export const accounts = sqliteTable(
+export var accounts = sqliteTable(
   "accounts",
   {
     userId: text("userId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    type: text("type").$type<AdapterAccount["type"]>().notNull(),
+    type: text("type").notNull(),
     provider: text("provider").notNull(),
     providerAccountId: text("providerAccountId").notNull(),
-    refresh_token: text("refresh_token"),
-    access_token: text("access_token"),
-    expires_at: integer("expires_at"),
-    token_type: text("token_type"),
+    refreshToken: text("refresh_token"),
+    accessToken: text("access_token"),
+    expiresAt: integer("expires_at"),
+    tokenType: text("token_type"),
     scope: text("scope"),
-    id_token: text("id_token"),
-    session_state: text("session_state"),
+    idToken: text("id_token"),
+    sessionState: text("session_state"),
   },
-  (account) => ({
-    compoundKey: primaryKey(account.provider, account.providerAccountId),
-  })
+  (table) => {
+    return {
+      pk0: primaryKey(table.provider, table.providerAccountId),
+    }
+  }
 )
-export const sessions = sqliteTable("sessions", {
-  sessionToken: text("sessionToken").notNull().primaryKey(),
+
+export var sessions = sqliteTable("sessions", {
+  sessionToken: text("sessionToken").primaryKey().notNull(),
   userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
+  expires: integer("expires").notNull(),
 })
 
-export const verificationTokens = sqliteTable(
+export var test = sqliteTable("test", {
+  id: integer("id").primaryKey().notNull(),
+  text: text("text").notNull(),
+})
+
+export var users = sqliteTable("users", {
+  id: text("id").primaryKey().notNull(),
+  name: text("name"),
+  email: text("email").notNull(),
+  emailVerified: integer("emailVerified"),
+  image: text("image"),
+})
+
+export var verificationToken = sqliteTable(
   "verificationToken",
   {
     identifier: text("identifier").notNull(),
     token: text("token").notNull(),
-    expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
+    expires: integer("expires").notNull(),
   },
-  (vt) => ({
-    compoundKey: primaryKey(vt.identifier, vt.token),
-  })
+  (table) => {
+    return {
+      pk0: primaryKey(table.identifier, table.token),
+    }
+  }
 )
+
+export var messages = sqliteTable("messages", {
+  id: integer("id").primaryKey().notNull(),
+  sender: integer("sender").notNull(),
+  reciever: integer("reciever").notNull(),
+  channel: integer("channel").notNull(),
+  type: text("type").notNull(),
+  content: text("content").notNull(),
+  timestamp: numeric("timestamp").default(sql`(CURRENT_TIMESTAMP)`),
+})
