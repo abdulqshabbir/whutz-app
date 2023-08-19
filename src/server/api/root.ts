@@ -11,7 +11,7 @@ import { pusherRouter } from "./routers/pusher"
 export const appRouter = createTRPCRouter({
   example: exampleRouter,
   friend: friendRouter,
-  pusher: pusherRouter,
+  messages: pusherRouter,
 })
 
 // export type definition of API

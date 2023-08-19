@@ -1,11 +1,5 @@
 import { sql } from "drizzle-orm"
-import {
-  integer,
-  numeric,
-  primaryKey,
-  sqliteTable,
-  text,
-} from "drizzle-orm/sqlite-core"
+import { integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core"
 
 export const accounts = sqliteTable(
   "accounts",
@@ -68,5 +62,13 @@ export const messages = sqliteTable("messages", {
   channel: text("channel").notNull(),
   type: text("type").notNull(),
   content: text("content").notNull(),
-  timestamp: numeric("timestamp").default(sql`(CURRENT_TIMESTAMP)`),
+  timestamp: integer("timestamp")
+    .default(sql`(unixepoch())`)
+    .notNull(),
+})
+
+export const channels = sqliteTable("channels", {
+  id: text("id").primaryKey().notNull(),
+  firstUserEmail: text("firstUserEmail").notNull(),
+  secondUserEmail: text("secondUserEmail").notNull(),
 })

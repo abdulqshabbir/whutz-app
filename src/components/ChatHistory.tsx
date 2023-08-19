@@ -1,24 +1,37 @@
-import React from "react"
+import { cn } from "@/lib/utils"
+import { trpc } from "@/utils/api"
 import { format, fromUnixTime } from "date-fns"
+import { useSession } from "next-auth/react"
+import React from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar"
 import P from "./ui/typography/P"
-import { cn } from "@/lib/utils"
-import { useSession } from "next-auth/react"
 
 export type Message = {
   from: "ME" | "FRIEND"
   timestamp: number
-  type: "text" | "image" | "video"
+  type: string
   content: string
 }
 
 const ChatHistory = ({ messages }: { messages: Message[] }) => {
+  const session = useSession()
+  const { data } = trpc.friend.getProfileInfo.useQuery({
+    channel: "hello-channel",
+    friendEmail:
+      session.data?.user.email === "abdulqshabbir@gmail.com"
+        ? "ashabbir@algomau.ca"
+        : "abdulqshabbir@gmail.com",
+  })
   return messages?.map((m) => (
     <React.Fragment key={crypto.randomUUID()}>
       {m.from === "ME" ? (
         <UserMessage message={{ ...m }} />
       ) : (
-        <FriendMessage message={{ ...m }} />
+        <FriendMessage
+          message={{ ...m }}
+          friendAvatarImage={data?.image ?? ""}
+          friendName={data?.name ?? ""}
+        />
       )}
     </React.Fragment>
   ))
@@ -76,16 +89,23 @@ function UserMessage({ message }: { message: Message }) {
   )
 }
 
-function FriendMessage({ message }: { message: Message }) {
+function FriendMessage({
+  message,
+  friendAvatarImage,
+  friendName,
+}: {
+  message: Message
+  friendAvatarImage: string
+  friendName: string
+}) {
   return (
     <div className="mx-8 my-4 flex items-start justify-start gap-6">
       <div className="flex flex-col items-center gap-1">
         <Avatar>
-          <AvatarImage
-            src="https://github.com/abdulqshabbir.png"
-            alt="@shadcn"
-          />
-          <AvatarFallback className="bg-blue-100">A</AvatarFallback>
+          <AvatarImage src={friendAvatarImage} alt="@shadcn" />
+          <AvatarFallback className="bg-blue-100">
+            {friendName.slice(0, 1).toUpperCase()}
+          </AvatarFallback>
         </Avatar>
         <ChatTime>{convertTimestampToTime(message.timestamp)}</ChatTime>
       </div>

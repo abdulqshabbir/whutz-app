@@ -1,17 +1,17 @@
 import { AccountBarDropdown } from "@/components/AccountDropdown"
-import { ChatHistory } from "@/components/ChatHistory"
+import { ChatHistory, type Message } from "@/components/ChatHistory"
 import { Textarea } from "@/components/ui/TextArea"
 import { env } from "@/env.mjs"
 import { useIsClient } from "@/hooks/useIsClient"
-import { type RouterInputs, trpc, type RouterOutputs } from "@/utils/api"
+import { trpc, type RouterInputs, type RouterOutputs } from "@/utils/api"
 import { useSession } from "next-auth/react"
 import Head from "next/head"
 import { useRouter } from "next/navigation"
 import Script from "next/script"
 import Pusher from "pusher-js"
 import { useEffect, useState } from "react"
-import { type Message } from "@/components/ChatHistory"
-type SendMessageInput = RouterInputs["pusher"]["sendMessage"]
+
+type SendMessageInput = RouterInputs["messages"]["send"]
 
 function AccountBar() {
   return (
@@ -31,30 +31,39 @@ function ChatRoom() {
   const session = useSession()
   const router = useRouter()
   const isClient = useIsClient()
-  const { mutate } = trpc.pusher.sendMessage.useMutation()
+  const { mutate } = trpc.messages.send.useMutation()
+  const { data } = trpc.messages.getByChannel.useQuery(
+    {
+      channel: "hello-channel",
+    },
+    { refetchOnWindowFocus: false }
+  )
+
   const [messages, setMessages] = useState<Message[]>([])
+
+  useEffect(() => {
+    if (data) {
+      setMessages(
+        transformServerMessagesToClient(session.data?.user.email ?? null, data)
+      )
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(data)])
 
   useEffect(() => {
     const pusher = new Pusher(env.NEXT_PUBLIC_PUSHER_KEY, {
       cluster: env.NEXT_PUBLIC_PUSHER_CLUSTER,
     })
     const channel = pusher.subscribe("hello-channel")
-    const callback = ({ data }: RouterOutputs["pusher"]["sendMessage"]) => {
-      setMessages((messages) => [
-        ...messages,
-        {
-          from: data.from === session?.data?.user.id ? "ME" : "FRIEND",
-          timestamp: data.timestamp,
-          type: data.type,
-          content: data.content,
-        },
-      ])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const callback = (data: any) => {
+      console.log("recieved data from friend!", data)
     }
-
     channel.bind("message", callback)
     return () => {
       channel.unbind("message", callback)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.data?.user.id])
 
   if (isClient && !session?.data) {
@@ -66,6 +75,20 @@ function ChatRoom() {
       ...input,
     })
   }
+
+  function transformServerMessagesToClient(
+    userEmail: string | null,
+    data?: RouterOutputs["messages"]["getByChannel"]
+  ): Message[] {
+    if (!data) return []
+    return data.map((message) => ({
+      from: message.sender === userEmail ? "ME" : "FRIEND",
+      timestamp: message.timestamp,
+      type: message.type,
+      content: message.content,
+    }))
+  }
+
   return (
     <>
       <div className="flex flex-1 flex-col bg-gray-100">
@@ -100,10 +123,13 @@ function ChatInput({
       onKeyUp={(e) => {
         if (e.key === "Enter") {
           sendMesage({
-            from: session.data?.user.id ?? "",
-            to: "hassan",
+            from: session.data?.user.email ?? "",
+            to:
+              session.data?.user.email === "ashabbir@algomau.ca"
+                ? "abdulqshabbir@gmail.com"
+                : "ashabbir@algomau.ca",
             channel: "hello-channel",
-            content: newMessage,
+            content: newMessage.trimEnd(),
           })
           setNewMessage("")
         }

@@ -22,6 +22,20 @@
       "when": 1692440260810,
       "tag": "0002_past_ultimatum",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1692452415152,
+      "tag": "0003_greedy_orphan",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1692456974016,
+      "tag": "0004_powerful_mole_man",
+      "breakpoints": true
     }
   ]
 }
