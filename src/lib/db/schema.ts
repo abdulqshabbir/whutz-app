@@ -1,4 +1,3 @@
-/* eslint-disable no-var */
 import { sql } from "drizzle-orm"
 import {
   integer,
@@ -8,7 +7,7 @@ import {
   text,
 } from "drizzle-orm/sqlite-core"
 
-export var accounts = sqliteTable(
+export const accounts = sqliteTable(
   "accounts",
   {
     userId: text("userId")
@@ -32,7 +31,7 @@ export var accounts = sqliteTable(
   }
 )
 
-export var sessions = sqliteTable("sessions", {
+export const sessions = sqliteTable("sessions", {
   sessionToken: text("sessionToken").primaryKey().notNull(),
   userId: text("userId")
     .notNull()
@@ -40,12 +39,7 @@ export var sessions = sqliteTable("sessions", {
   expires: integer("expires").notNull(),
 })
 
-export var test = sqliteTable("test", {
-  id: integer("id").primaryKey().notNull(),
-  text: text("text").notNull(),
-})
-
-export var users = sqliteTable("users", {
+export const users = sqliteTable("users", {
   id: text("id").primaryKey().notNull(),
   name: text("name"),
   email: text("email").notNull(),
@@ -53,7 +47,7 @@ export var users = sqliteTable("users", {
   image: text("image"),
 })
 
-export var verificationToken = sqliteTable(
+export const verificationToken = sqliteTable(
   "verificationToken",
   {
     identifier: text("identifier").notNull(),
@@ -67,10 +61,10 @@ export var verificationToken = sqliteTable(
   }
 )
 
-export var messages = sqliteTable("messages", {
+export const messages = sqliteTable("messages", {
   id: integer("id").primaryKey().notNull(),
-  sender: integer("sender").notNull(),
-  reciever: integer("reciever").notNull(),
+  sender: text("sender").notNull(),
+  reciever: text("reciever").notNull(),
   channel: integer("channel").notNull(),
   type: text("type").notNull(),
   content: text("content").notNull(),

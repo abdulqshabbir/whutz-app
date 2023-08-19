@@ -8,6 +8,13 @@
       "when": 1692366433373,
       "tag": "0000_misty_dreadnoughts",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1692367160079,
+      "tag": "0001_magical_silver_samurai",
+      "breakpoints": true
     }
   ]
 }

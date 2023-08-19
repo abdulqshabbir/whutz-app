@@ -2,6 +2,8 @@ import { createTRPCRouter, publicProcedure } from "@/server/api/trpc"
 import Pusher from "pusher"
 import { env } from "@/env.mjs"
 import { z } from "zod"
+import { db } from "@/lib/db/dbClient"
+import { messages } from "@/lib/db/schema"
 
 export const pusher = new Pusher({
   appId: env.PUSHER_APP_ID,
@@ -21,12 +23,13 @@ export const pusherRouter = createTRPCRouter({
       z.object({
         from: z.string(),
         to: z.string(),
-        channel: z.string(),
+        channel: z.number(),
         message: z.string(),
+        content: z.string(),
       })
     )
     .mutation(async ({ input }) => {
-      await pusher.trigger(input.channel, "message", {
+      await pusher.trigger(input.channel.toString(), "message", {
         data: {
           from: input.from,
           to: input.to,
@@ -36,6 +39,17 @@ export const pusherRouter = createTRPCRouter({
           timestamp: now(),
         },
       })
+      await db
+        .insert(messages)
+        .values({
+          sender: input.from,
+          reciever: input.to,
+          channel: input.channel,
+          type: "text",
+          content: input.content,
+        })
+        .all()
+
       return {
         data: {
           from: input.from,

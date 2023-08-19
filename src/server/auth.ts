@@ -1,11 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-
 import { env } from "@/env.mjs"
 import { db, type DrizzleDB } from "@/lib/db/dbClient"
-import { accounts, sessions, users, verificationTokens } from "@/lib/db/schema"
+import {
+  accounts,
+  sessions,
+  users,
+  verificationToken as verificationTokens,
+} from "@/lib/db/schema"
 import { and, eq } from "drizzle-orm"
 import { type GetServerSidePropsContext } from "next"
 import {
@@ -17,12 +17,25 @@ import GoogleProvider from "next-auth/providers/google"
 
 function DrizzleAdapter(db: DrizzleDB): NextAuthOptions["adapter"] {
   return {
-    createUser: (data) => {
-      return db
+    createUser: async (data) => {
+      const result = await db
         .insert(users)
-        .values({ ...data, id: crypto.randomUUID() })
+        .values({
+          ...data,
+          id: crypto.randomUUID(),
+          emailVerified: data.emailVerified
+            ? new Date(data.emailVerified).getTime() / 1000
+            : null,
+        })
         .returning()
         .get()
+
+      return {
+        ...result,
+        emailVerified: result.emailVerified
+          ? new Date(result.emailVerified * 1000)
+          : null,
+      }
     },
     getUser: async (data) => {
       const result = await db
@@ -30,7 +43,15 @@ function DrizzleAdapter(db: DrizzleDB): NextAuthOptions["adapter"] {
         .from(users)
         .where(eq(users.id, data))
         .get()
-      return result ?? null
+
+      return result
+        ? {
+            ...result,
+            emailVerified: result.emailVerified
+              ? new Date(result.emailVerified * 1000)
+              : null,
+          }
+        : null
     },
     getUserByEmail: async (data) => {
       const result = await db
@@ -38,10 +59,29 @@ function DrizzleAdapter(db: DrizzleDB): NextAuthOptions["adapter"] {
         .from(users)
         .where(eq(users.email, data))
         .get()
-      return result ?? null
+      return result
+        ? {
+            ...result,
+            emailVerified: result.emailVerified
+              ? new Date(result.emailVerified * 1000)
+              : null,
+          }
+        : null
     },
-    createSession: (data) => {
-      return db.insert(sessions).values(data).returning().get()
+    createSession: async (data) => {
+      const result = await db
+        .insert(sessions)
+        .values({
+          ...data,
+          expires: data.expires.getTime() / 1000,
+        })
+        .returning()
+        .get()
+
+      return {
+        ...result,
+        expires: new Date(result.expires * 1000),
+      }
     },
     getSessionAndUser: async (data) => {
       const result = await db
@@ -53,47 +93,63 @@ function DrizzleAdapter(db: DrizzleDB): NextAuthOptions["adapter"] {
         .where(eq(sessions.sessionToken, data))
         .innerJoin(users, eq(users.id, sessions.userId))
         .get()
-      return result ?? null
+      return result
+        ? {
+            session: {
+              ...result.session,
+              expires: new Date(result.session.expires * 1000),
+            },
+            user: {
+              ...result.user,
+              emailVerified: result.user.emailVerified
+                ? new Date(result.user.emailVerified * 1000)
+                : null,
+            },
+          }
+        : null
     },
-    updateUser: (data) => {
+    updateUser: async (data) => {
       if (!data.id) {
         throw new Error("No user id.")
       }
 
-      return db
+      const result = await db
         .update(users)
-        .set(data)
+        .set({
+          ...data,
+          emailVerified: data.emailVerified
+            ? data.emailVerified?.getTime() / 1000
+            : null,
+        })
         .where(eq(users.id, data.id))
         .returning()
         .get()
+
+      return {
+        ...result,
+        emailVerified: result.emailVerified
+          ? new Date(result.emailVerified * 1000)
+          : null,
+      }
     },
-    updateSession: (data) => {
-      return db
+    updateSession: async (data) => {
+      const result = await db
         .update(sessions)
-        .set(data)
+        .set({
+          ...data,
+          expires: data.expires ? data.expires.getTime() / 1000 : undefined,
+        })
         .where(eq(sessions.sessionToken, data.sessionToken))
         .returning()
         .get()
+
+      return {
+        ...result,
+        expires: new Date(result.expires * 1000),
+      }
     },
     linkAccount: async (rawAccount) => {
-      const updatedAccount = (await db
-        .insert(accounts)
-        .values(rawAccount)
-        .returning()
-        .get()) as unknown as any
-
-      const account = {
-        ...updatedAccount,
-        type: updatedAccount.type,
-        access_token: updatedAccount.access_token ?? undefined,
-        token_type: updatedAccount.token_type ?? undefined,
-        id_token: updatedAccount.id_token ?? undefined,
-        refresh_token: updatedAccount.refresh_token ?? undefined,
-        scope: updatedAccount.scope ?? undefined,
-        expires_at: updatedAccount.expires_at ?? undefined,
-        session_state: updatedAccount.session_state ?? undefined,
-      }
-      return account
+      await db.insert(accounts).values(rawAccount).returning().get()
     },
     getUserByAccount: async (account) => {
       const results = await db
@@ -108,40 +164,61 @@ function DrizzleAdapter(db: DrizzleDB): NextAuthOptions["adapter"] {
         )
         .get()
 
-      return results?.users ?? null
+      return results?.users
+        ? {
+            id: results.users.id,
+            email: results.users.email,
+            emailVerified: results?.users?.emailVerified
+              ? new Date(results?.users?.emailVerified * 1000)
+              : null,
+            name: results.users.name,
+            image: results.users.image,
+          }
+        : null
     },
     deleteSession: async (sessionToken) => {
-      return (
-        (await db
-          .delete(sessions)
-          .where(eq(sessions.sessionToken, sessionToken))
-          .returning()
-          .get()) ?? null
-      )
+      await db
+        .delete(sessions)
+        .where(eq(sessions.sessionToken, sessionToken))
+        .returning()
+        .get()
     },
-    createVerificationToken: (token) => {
-      return db.insert(verificationTokens).values(token).returning().get()
+    createVerificationToken: async (token) => {
+      const result = await db
+        .insert(verificationTokens)
+        .values({
+          ...token,
+          expires: token.expires.getTime() / 1000,
+        })
+        .returning()
+        .get()
+      return {
+        ...result,
+        expires: new Date(result.expires * 1000),
+      }
     },
     useVerificationToken: async (token) => {
       try {
-        return (
-          (await db
-            .delete(verificationTokens)
-            .where(
-              and(
-                eq(verificationTokens.identifier, token.identifier),
-                eq(verificationTokens.token, token.token)
-              )
+        const result = await db
+          .delete(verificationTokens)
+          .where(
+            and(
+              eq(verificationTokens.identifier, token.identifier),
+              eq(verificationTokens.token, token.token)
             )
-            .returning()
-            .get()) ?? null
-        )
+          )
+          .returning()
+          .get()
+
+        return result
+          ? { ...result, expires: new Date(result.expires * 1000) }
+          : null
       } catch (err) {
         throw new Error("No verification token found.")
       }
     },
-    deleteUser: (id) => {
-      return db.delete(users).where(eq(users.id, id)).returning().get()
+    deleteUser: async (userId: string) => {
+      await db.delete(users).where(eq(users.id, userId)).returning().get()
     },
     unlinkAccount: async (account) => {
       await db
@@ -204,6 +281,7 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
+      checks: ["none"],
     }),
     /**
      * ...add more providers here.
