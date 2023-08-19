@@ -65,7 +65,7 @@ export const messages = sqliteTable("messages", {
   id: integer("id").primaryKey().notNull(),
   sender: text("sender").notNull(),
   reciever: text("reciever").notNull(),
-  channel: integer("channel").notNull(),
+  channel: text("channel").notNull(),
   type: text("type").notNull(),
   content: text("content").notNull(),
   timestamp: numeric("timestamp").default(sql`(CURRENT_TIMESTAMP)`),

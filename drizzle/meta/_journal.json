@@ -15,6 +15,13 @@
       "when": 1692367160079,
       "tag": "0001_magical_silver_samurai",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1692440260810,
+      "tag": "0002_past_ultimatum",
+      "breakpoints": true
     }
   ]
 }

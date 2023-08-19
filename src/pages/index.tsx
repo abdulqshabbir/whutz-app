@@ -103,7 +103,7 @@ function ChatInput({
             from: session.data?.user.id ?? "",
             to: "hassan",
             channel: "hello-channel",
-            message: newMessage.trimEnd(),
+            content: newMessage,
           })
           setNewMessage("")
         }

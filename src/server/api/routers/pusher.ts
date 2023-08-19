@@ -23,8 +23,7 @@ export const pusherRouter = createTRPCRouter({
       z.object({
         from: z.string(),
         to: z.string(),
-        channel: z.number(),
-        message: z.string(),
+        channel: z.string(),
         content: z.string(),
       })
     )
@@ -35,7 +34,7 @@ export const pusherRouter = createTRPCRouter({
           to: input.to,
           channel: input.channel,
           type: "text" as const,
-          content: input.message,
+          content: input.content,
           timestamp: now(),
         },
       })
@@ -56,7 +55,7 @@ export const pusherRouter = createTRPCRouter({
           to: input.to,
           channel: input.channel,
           type: "text" as const,
-          content: input.message,
+          content: input.content,
           timestamp: now(),
         },
       }

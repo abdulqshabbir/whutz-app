@@ -11,7 +11,8 @@
     "pull": "drizzle-kit introspect:sqlite --config=./src/drizzle.config.ts",
     "push": "drizzle-kit push:sqlite --config=./src/drizzle.config.ts",
     "migrate": "drizzle-kit generate:sqlite --schema=./src/lib/db/schema.ts",
-    "studio": "drizzle-kit studio --config=./src/drizzle.config.ts"
+    "studio": "drizzle-kit studio --config=./src/drizzle.config.ts",
+    "ts-lint": "tsc"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^0.3.0",
