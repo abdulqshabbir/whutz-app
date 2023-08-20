@@ -36,6 +36,13 @@
       "when": 1692456974016,
       "tag": "0004_powerful_mole_man",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1692511877484,
+      "tag": "0005_complete_master_chief",
+      "breakpoints": true
     }
   ]
 }

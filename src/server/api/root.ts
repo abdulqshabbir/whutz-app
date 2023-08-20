@@ -1,5 +1,6 @@
 import { exampleRouter } from "@/server/api/routers/example"
 import { createTRPCRouter } from "@/server/api/trpc"
+import { userRouter } from "./routers/user"
 import { friendRouter } from "./routers/friend"
 import { pusherRouter } from "./routers/pusher"
 
@@ -10,6 +11,7 @@ import { pusherRouter } from "./routers/pusher"
  */
 export const appRouter = createTRPCRouter({
   example: exampleRouter,
+  user: userRouter,
   friend: friendRouter,
   messages: pusherRouter,
 })

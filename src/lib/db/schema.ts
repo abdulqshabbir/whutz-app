@@ -55,11 +55,37 @@ export const verificationToken = sqliteTable(
   }
 )
 
+export const userFriends = sqliteTable(
+  "userFriends",
+  {
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id),
+    friendId: text("friendId")
+      .notNull()
+      .references(() => users.id),
+    channelId: text("channelId")
+      .notNull()
+      .references(() => channels.id),
+  },
+  (table) => {
+    return {
+      pk0: primaryKey(table.friendId, table.userId),
+    }
+  }
+)
+
 export const messages = sqliteTable("messages", {
   id: integer("id").primaryKey().notNull(),
-  sender: text("sender").notNull(),
-  reciever: text("reciever").notNull(),
-  channel: text("channel").notNull(),
+  sender: text("sender")
+    .notNull()
+    .references(() => users.id),
+  reciever: text("reciever")
+    .notNull()
+    .references(() => users.id),
+  channel: text("channel")
+    .notNull()
+    .references(() => channels.id),
   type: text("type").notNull(),
   content: text("content").notNull(),
   timestamp: integer("timestamp")
@@ -69,6 +95,4 @@ export const messages = sqliteTable("messages", {
 
 export const channels = sqliteTable("channels", {
   id: text("id").primaryKey().notNull(),
-  firstUserEmail: text("firstUserEmail").notNull(),
-  secondUserEmail: text("secondUserEmail").notNull(),
 })

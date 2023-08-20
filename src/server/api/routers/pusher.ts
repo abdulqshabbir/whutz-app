@@ -1,6 +1,6 @@
 import { env } from "@/env.mjs"
 import { db } from "@/lib/db/dbClient"
-import { messages } from "@/lib/db/schema"
+import { messages, users } from "@/lib/db/schema"
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc"
 import { asc, eq } from "drizzle-orm"
 import Pusher from "pusher"
@@ -25,9 +25,12 @@ export const pusherRouter = createTRPCRouter({
         channel: z.string(),
       })
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
+      if (!ctx.session?.user?.email) {
+        return []
+      }
       const channelId = input.channel
-      const channel = await db
+      const result = await db
         .select({
           sender: messages.sender,
           reciever: messages.reciever,
@@ -40,7 +43,21 @@ export const pusherRouter = createTRPCRouter({
         .orderBy(asc(messages.timestamp))
         .all()
 
-      return channel ?? null
+      type Who = "ME" | "FRIEND"
+      const user = await db
+        .select({
+          id: users.id,
+        })
+        .from(users)
+        .where(eq(users.email, ctx.session?.user.email ?? ""))
+        .get()
+
+      return result.map((m) => {
+        return {
+          ...m,
+          from: (m.sender === user?.id ? "ME" : "FRIEND") as Who,
+        }
+      })
     }),
   send: publicProcedure
     .input(

@@ -82,7 +82,7 @@ function ChatRoom() {
   ): Message[] {
     if (!data) return []
     return data.map((message) => ({
-      from: message.sender === userEmail ? "ME" : "FRIEND",
+      from: message.from,
       timestamp: message.timestamp,
       type: message.type,
       content: message.content,
@@ -123,11 +123,14 @@ function ChatInput({
       onKeyUp={(e) => {
         if (e.key === "Enter") {
           sendMesage({
-            from: session.data?.user.email ?? "",
+            from:
+              session.data?.user.email === "abdulqshabbir@gmail.com"
+                ? "4f8266a3-cc5a-4979-b8a9-9e970b2b7801"
+                : "0f041948-280b-4004-b81f-89ece48da5ab",
             to:
               session.data?.user.email === "ashabbir@algomau.ca"
-                ? "abdulqshabbir@gmail.com"
-                : "ashabbir@algomau.ca",
+                ? "4f8266a3-cc5a-4979-b8a9-9e970b2b7801"
+                : "0f041948-280b-4004-b81f-89ece48da5ab",
             channel: "hello-channel",
             content: newMessage.trimEnd(),
           })
