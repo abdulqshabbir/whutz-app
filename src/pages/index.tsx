@@ -61,14 +61,19 @@ function ChatRoom() {
       ...input,
     })
   }
+  const CHAT_INPUT_HEIGHT_IN_PIXELS = 150
 
   return (
     <>
-      <div className="flex flex-1 flex-col bg-gray-100">
-        <div className="flex flex-1 flex-col">
+      <div className="flex w-full flex-col items-stretch bg-gray-100">
+        <div
+          className={`flex h-[calc(100vh-1rem-${CHAT_INPUT_HEIGHT_IN_PIXELS}px)] flex-col overflow-y-scroll`}
+        >
           <ChatHistory messages={messages} />
         </div>
-        <div className="m-2 flex h-24 bg-gray-500">
+        <div
+          className={`m-2 flex h-[${CHAT_INPUT_HEIGHT_IN_PIXELS}px] bg-gray-500"`}
+        >
           <ChatInput sendMesage={sendMesage} />
         </div>
       </div>
@@ -86,7 +91,7 @@ function ChatInput({
 
   return (
     <Textarea
-      className="h-full bg-gray-50 p-4"
+      className="m-0 h-full bg-gray-50 p-4"
       style={{ resize: "none" }}
       placeholder="Write a message"
       value={newMessage}
