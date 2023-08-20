@@ -25,10 +25,10 @@ const ChatHistory = ({ messages }: { messages: Message[] }) => {
   return messages?.map((m) => (
     <React.Fragment key={crypto.randomUUID()}>
       {m.from === "ME" ? (
-        <UserMessage message={{ ...m }} />
+        <UserMessage message={m} />
       ) : (
         <FriendMessage
-          message={{ ...m }}
+          message={m}
           friendAvatarImage={data?.image ?? ""}
           friendName={data?.name ?? ""}
         />
@@ -65,7 +65,12 @@ function ChatTime({ children }: { children: React.ReactNode }) {
 }
 
 function convertTimestampToTime(timestamp: number) {
-  return format(fromUnixTime(timestamp), "hh:mm a")
+  try {
+    const result = format(fromUnixTime(timestamp), "hh:mm a")
+    return result
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 function UserMessage({ message }: { message: Message }) {

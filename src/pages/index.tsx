@@ -3,7 +3,7 @@ import { ChatHistory, type Message } from "@/components/ChatHistory"
 import { Textarea } from "@/components/ui/TextArea"
 import { env } from "@/env.mjs"
 import { useIsClient } from "@/hooks/useIsClient"
-import { trpc, type RouterInputs, type RouterOutputs } from "@/utils/api"
+import { trpc, type RouterInputs } from "@/utils/api"
 import { useSession } from "next-auth/react"
 import Head from "next/head"
 import { useRouter } from "next/navigation"
@@ -32,23 +32,7 @@ function ChatRoom() {
   const router = useRouter()
   const isClient = useIsClient()
   const { mutate } = trpc.messages.send.useMutation()
-  const { data } = trpc.messages.getByChannel.useQuery(
-    {
-      channel: "hello-channel",
-    },
-    { refetchOnWindowFocus: false }
-  )
-
   const [messages, setMessages] = useState<Message[]>([])
-
-  useEffect(() => {
-    if (data) {
-      setMessages(
-        transformServerMessagesToClient(session.data?.user.email ?? null, data)
-      )
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(data)])
 
   useEffect(() => {
     const pusher = new Pusher(env.NEXT_PUBLIC_PUSHER_KEY, {
@@ -56,8 +40,10 @@ function ChatRoom() {
     })
     const channel = pusher.subscribe("hello-channel")
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const callback = (data: any) => {
+    const callback = ({ data }: { data: Message[] }) => {
+      console.log(data)
       console.log("recieved data from friend!", data)
+      setMessages(() => data)
     }
     channel.bind("message", callback)
     return () => {
@@ -74,19 +60,6 @@ function ChatRoom() {
     mutate({
       ...input,
     })
-  }
-
-  function transformServerMessagesToClient(
-    userEmail: string | null,
-    data?: RouterOutputs["messages"]["getByChannel"]
-  ): Message[] {
-    if (!data) return []
-    return data.map((message) => ({
-      from: message.from,
-      timestamp: message.timestamp,
-      type: message.type,
-      content: message.content,
-    }))
   }
 
   return (
@@ -122,19 +95,15 @@ function ChatInput({
       }}
       onKeyUp={(e) => {
         if (e.key === "Enter") {
-          sendMesage({
-            from:
-              session.data?.user.email === "abdulqshabbir@gmail.com"
-                ? "4f8266a3-cc5a-4979-b8a9-9e970b2b7801"
-                : "0f041948-280b-4004-b81f-89ece48da5ab",
-            to:
-              session.data?.user.email === "ashabbir@algomau.ca"
-                ? "4f8266a3-cc5a-4979-b8a9-9e970b2b7801"
-                : "0f041948-280b-4004-b81f-89ece48da5ab",
-            channel: "hello-channel",
-            content: newMessage.trimEnd(),
-          })
-          setNewMessage("")
+          if (session.data?.user.email) {
+            sendMesage({
+              fromEmail: session.data?.user.email,
+              toEmail: "ashabbir@algomau.ca",
+              channel: "hello-channel",
+              content: newMessage.trimEnd(),
+            })
+            setNewMessage("")
+          }
         }
       }}
     />

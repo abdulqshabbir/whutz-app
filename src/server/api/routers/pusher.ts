@@ -2,6 +2,7 @@ import { env } from "@/env.mjs"
 import { db } from "@/lib/db/dbClient"
 import { messages, users } from "@/lib/db/schema"
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc"
+import { TRPCError } from "@trpc/server"
 import { asc, eq } from "drizzle-orm"
 import Pusher from "pusher"
 import { z } from "zod"
@@ -16,6 +17,19 @@ export const pusher = new Pusher({
 
 function now() {
   return Math.floor(new Date().getTime() / 1000)
+}
+
+type Who = "ME" | "FRIEND"
+async function getUserIdFromEmail(email: string) {
+  const user = await db
+    .select({
+      id: users.id,
+    })
+    .from(users)
+    .where(eq(users.email, email ?? ""))
+    .get()
+
+  return user?.id ?? null
 }
 
 export const pusherRouter = createTRPCRouter({
@@ -43,37 +57,51 @@ export const pusherRouter = createTRPCRouter({
         .orderBy(asc(messages.timestamp))
         .all()
 
-      type Who = "ME" | "FRIEND"
-      const user = await db
-        .select({
-          id: users.id,
-        })
-        .from(users)
-        .where(eq(users.email, ctx.session?.user.email ?? ""))
-        .get()
+      const userId = await getUserIdFromEmail(ctx.session.user.email)
 
       return result.map((m) => {
         return {
           ...m,
-          from: (m.sender === user?.id ? "ME" : "FRIEND") as Who,
+          from: (m.sender === userId ? "ME" : "FRIEND") as Who,
         }
       })
     }),
   send: publicProcedure
     .input(
       z.object({
-        from: z.string().min(1),
-        to: z.string().min(1),
+        fromEmail: z.string().email(),
+        toEmail: z.string().email(),
         channel: z.string().min(1),
         content: z.string().min(1),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.session?.user.email) {
+        return
+      }
+
+      const fromId = await getUserIdFromEmail(input.fromEmail)
+      const toId = await getUserIdFromEmail(input.toEmail)
+
+      if (!fromId) {
+        throw new TRPCError({
+          message: "Sender email could not be found",
+          code: "BAD_REQUEST",
+        })
+      }
+
+      if (!toId) {
+        throw new TRPCError({
+          message: "Reciever email could not be found",
+          code: "BAD_REQUEST",
+        })
+      }
+
       const newMessage = await db
         .insert(messages)
         .values({
-          sender: input.from,
-          reciever: input.to,
+          sender: fromId,
+          reciever: toId,
           channel: input.channel,
           type: "text",
           content: input.content,
@@ -82,15 +110,26 @@ export const pusherRouter = createTRPCRouter({
         .returning()
         .get()
 
+      const userId = await getUserIdFromEmail(ctx.session.user.email)
+
+      const allMessagesForChannel = await db
+        .select({
+          sender: messages.sender,
+          timestamp: messages.timestamp,
+          type: messages.type,
+          content: messages.content,
+        })
+        .from(messages)
+        .where(eq(messages.channel, input.channel))
+        .all()
+
       await pusher.trigger(input.channel, "message", {
-        data: {
-          from: newMessage.sender,
-          to: newMessage.reciever,
-          channel: newMessage.channel,
-          type: newMessage.type,
-          content: newMessage.content,
-          timestamp: newMessage.timestamp,
-        },
+        data: allMessagesForChannel.map((m) => ({
+          timestamp: m.timestamp,
+          type: m.type,
+          content: m.content,
+          from: (userId === fromId ? "ME" : "FRIEND") as Who,
+        })),
       })
 
       return {
