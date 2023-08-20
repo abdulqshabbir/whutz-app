@@ -13,6 +13,8 @@ import { LogOut, Settings } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
 import { useRouter } from "next/router"
 import { AddFriendDialog } from "./AddFriendDialog"
+import { trpc } from "@/utils/api"
+import { Separator } from "./ui/separator"
 
 export function AccountBarDropdown() {
   const router = useRouter()
@@ -55,6 +57,31 @@ export function AccountBarDropdown() {
         </DropdownMenuContent>
       </DropdownMenu>
       <AddFriendDialog />
+      <Separator className="w-5/6 bg-gray-300" />
+      <FriendsList userEmail={session.data?.user.email ?? null} />
     </>
   )
+}
+
+function FriendsList({ userEmail }: { userEmail: string | null }) {
+  const { data } = trpc.user.getFriendsByEmail.useQuery(
+    { email: userEmail ?? "" },
+    { enabled: Boolean(userEmail) }
+  )
+
+  if (!data) return null
+
+  return data.map((friend) => (
+    <div
+      key={crypto.randomUUID()}
+      className="mt-2 flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-gray-300"
+    >
+      <Avatar className="cursor-pointer">
+        <AvatarImage src={friend.image ?? ""} alt="@shadcn" />
+        <AvatarFallback className="h-12 w-12 rounded-full bg-blue-200 p-4 hover:bg-blue-300">
+          {friend.name?.slice(0, 1)}
+        </AvatarFallback>
+      </Avatar>
+    </div>
+  ))
 }

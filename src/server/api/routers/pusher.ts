@@ -20,7 +20,7 @@ function now() {
 }
 
 type Who = "ME" | "FRIEND"
-async function getUserIdFromEmail(email: string) {
+export async function getUserIdFromEmail(email: string) {
   const user = await db
     .select({
       id: users.id,
