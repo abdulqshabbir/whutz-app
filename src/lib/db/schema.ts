@@ -1,5 +1,11 @@
 import { sql } from "drizzle-orm"
-import { integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core"
+import {
+  integer,
+  numeric,
+  primaryKey,
+  sqliteTable,
+  text,
+} from "drizzle-orm/sqlite-core"
 
 export const accounts = sqliteTable(
   "accounts",
@@ -67,6 +73,7 @@ export const userFriends = sqliteTable(
     channelId: text("channelId")
       .notNull()
       .references(() => channels.id),
+    acceptedFriendRequest: numeric("acceptedFriendRequest").notNull(),
   },
   (table) => {
     return {

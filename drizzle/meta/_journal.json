@@ -43,6 +43,13 @@
       "when": 1692511877484,
       "tag": "0005_complete_master_chief",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1692537328910,
+      "tag": "0006_neat_mantis",
+      "breakpoints": true
     }
   ]
 }
