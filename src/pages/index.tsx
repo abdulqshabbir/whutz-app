@@ -4,12 +4,16 @@ import { Textarea } from "@/components/ui/TextArea"
 import { env } from "@/env.mjs"
 import { useIsClient } from "@/hooks/useIsClient"
 import { trpc, type RouterInputs } from "@/utils/api"
+import { atom, useAtom } from "jotai"
 import { useSession } from "next-auth/react"
 import Head from "next/head"
 import { useRouter } from "next/navigation"
 import Script from "next/script"
 import Pusher from "pusher-js"
 import { useEffect, useState } from "react"
+
+export const friendEmailAtom = atom("")
+export const channelAtom = atom("")
 
 type SendMessageInput = RouterInputs["messages"]["send"]
 
@@ -33,24 +37,25 @@ function ChatRoom() {
   const isClient = useIsClient()
   const { mutate } = trpc.messages.send.useMutation()
   const [messages, setMessages] = useState<Message[]>([])
+  const [channel] = useAtom(channelAtom)
 
   useEffect(() => {
     const pusher = new Pusher(env.NEXT_PUBLIC_PUSHER_KEY, {
       cluster: env.NEXT_PUBLIC_PUSHER_CLUSTER,
     })
-    const channel = pusher.subscribe("hello-channel")
+    const pusherChannel = pusher.subscribe(channel)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const callback = ({ data }: { data: Message[] }) => {
       console.log(data)
       console.log("recieved data from friend!", data)
       setMessages(() => data)
     }
-    channel.bind("message", callback)
+    pusherChannel.bind("message", callback)
     return () => {
-      channel.unbind("message", callback)
+      pusherChannel.unbind("message", callback)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session.data?.user.id])
+  }, [session.data?.user.id, channel])
 
   if (isClient && !session?.data) {
     void router.push("/signup")
@@ -62,6 +67,10 @@ function ChatRoom() {
     })
   }
   const CHAT_INPUT_HEIGHT_IN_PIXELS = 150
+
+  if (!channel) {
+    return null
+  }
 
   return (
     <>
@@ -88,6 +97,8 @@ function ChatInput({
 }) {
   const session = useSession()
   const [newMessage, setNewMessage] = useState("")
+  const [friendEmail] = useAtom(friendEmailAtom)
+  const [channel] = useAtom(channelAtom)
 
   return (
     <Textarea
@@ -103,8 +114,8 @@ function ChatInput({
           if (session.data?.user.email) {
             sendMesage({
               fromEmail: session.data?.user.email,
-              toEmail: "ashabbir@algomau.ca",
-              channel: "hello-channel",
+              toEmail: friendEmail,
+              channel: channel,
               content: newMessage.trimEnd(),
             })
             setNewMessage("")

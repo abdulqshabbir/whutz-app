@@ -15,6 +15,9 @@ import { useRouter } from "next/router"
 import { AddFriendDialog } from "./AddFriendDialog"
 import { trpc } from "@/utils/api"
 import { Separator } from "./ui/separator"
+import { channelAtom, friendEmailAtom } from "@/pages"
+import { useAtom } from "jotai"
+import { useEffect, useState } from "react"
 
 export function AccountBarDropdown() {
   const router = useRouter()
@@ -64,17 +67,46 @@ export function AccountBarDropdown() {
 }
 
 function FriendsList({ userEmail }: { userEmail: string | null }) {
-  const { data } = trpc.user.getFriendsByEmail.useQuery(
+  const [friendEmail, setFriendEmail] = useAtom(friendEmailAtom)
+  const [, setChannel] = useAtom(channelAtom)
+  const [fetchChannel, setFetchChannel] = useState(false)
+
+  const { data: userFriends } = trpc.user.getFriendsByEmail.useQuery(
     { email: userEmail ?? "" },
     { enabled: Boolean(userEmail) }
   )
+  const { data: channelId } =
+    trpc.channel.getChannelByUserAndFriendEmail.useQuery(
+      {
+        userEmail: userEmail ?? "",
+        friendEmail: friendEmail ?? "",
+      },
+      {
+        enabled: fetchChannel,
+      }
+    )
 
-  if (!data) return null
+  useEffect(() => {
+    if (friendEmail && userEmail) {
+      setFetchChannel(true)
+    }
+  }, [friendEmail, userEmail])
 
-  return data.map((friend) => (
+  useEffect(() => {
+    if (channelId) {
+      setChannel(channelId)
+    }
+  }, [channelId, setChannel])
+
+  if (!userFriends) return null
+
+  return userFriends.map((friend) => (
     <div
       key={crypto.randomUUID()}
       className="mt-2 flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-gray-300"
+      onClick={() => {
+        setFriendEmail(friend.email)
+      }}
     >
       <Avatar className="cursor-pointer">
         <AvatarImage src={friend.image ?? ""} alt="@shadcn" />

@@ -38,6 +38,7 @@ export const userRouter = createTRPCRouter({
         .select({
           image: users.image,
           name: users.name,
+          email: users.email,
         })
         .from(users)
         .where(
