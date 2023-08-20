@@ -73,7 +73,9 @@ export const userFriends = sqliteTable(
     channelId: text("channelId")
       .notNull()
       .references(() => channels.id),
-    acceptedFriendRequest: numeric("acceptedFriendRequest").notNull(),
+    acceptedFriendRequest: numeric("acceptedFriendRequest")
+      .notNull()
+      .default("0"),
   },
   (table) => {
     return {
