@@ -5,13 +5,6 @@ import { eq } from "drizzle-orm"
 import { z } from "zod"
 
 export const friendRouter = createTRPCRouter({
-  add: publicProcedure
-    .input(z.object({ email: z.string() }))
-    .mutation(({ input }) => {
-      return {
-        greeting: `Hello ${input.email}`,
-      }
-    }),
   getProfileInfo: publicProcedure
     .input(
       z.object({

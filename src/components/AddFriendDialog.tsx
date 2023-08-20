@@ -23,7 +23,11 @@ const addFriendSchema = z.object({
 export function AddFriendDialog() {
   const [email, setEmail] = useState("")
   const [error, setError] = useState("")
-  const mutation = trpc.friend.add.useMutation()
+  const mutation = trpc.user.sendFriendRequest.useMutation({
+    onError(error) {
+      setError(error.message)
+    },
+  })
   const onSubmit = (email: string) => {
     const parsedEmail = addFriendSchema.safeParse({ email })
     if (parsedEmail.success) {
