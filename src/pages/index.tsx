@@ -28,10 +28,6 @@ function AccountBar() {
   )
 }
 
-function FriendsBar() {
-  return null
-}
-
 function ChatRoom() {
   const session = useSession()
   const router = useRouter()
@@ -72,29 +68,24 @@ function ChatRoom() {
       ...input,
     })
   }
-  const CHAT_INPUT_HEIGHT_IN_PIXELS = 150
 
   if (!channel) {
     return null
   }
 
   return (
-    <>
-      <div className="flex w-full flex-col items-stretch bg-gray-100">
-        <div
-          className={`flex h-[calc(100vh-1rem-${CHAT_INPUT_HEIGHT_IN_PIXELS}px)] flex-col overflow-y-scroll`}
-        >
-          <ChatHistory
-            messages={messages.length === 0 ? initialMessages ?? [] : messages}
-          />
-        </div>
-        <div
-          className={`m-2 flex h-[${CHAT_INPUT_HEIGHT_IN_PIXELS}px] bg-gray-500"`}
-        >
+    <div className="flex h-screen w-full flex-col items-stretch bg-gray-100">
+      <div className={`h-[85%] overflow-y-auto`}>
+        <ChatHistory
+          messages={messages.length === 0 ? initialMessages ?? [] : messages}
+        />
+      </div>
+      <div className={`h-[15%]`}>
+        <div className="m-2">
           <ChatInput sendMesage={sendMesage} />
         </div>
       </div>
-    </>
+    </div>
   )
 }
 
@@ -143,9 +134,8 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Script src="https://js.pusher.com/8.2.0/pusher.min.js" />
-      <main className="flex min-h-screen flex-row">
+      <main className="flex h-screen flex-row">
         <AccountBar />
-        <FriendsBar />
         <ChatRoom />
       </main>
     </>
