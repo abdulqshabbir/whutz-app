@@ -8,16 +8,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu"
 
+import { channelAtom, friendEmailAtom, messagesAtom } from "@/pages"
+import { trpc } from "@/utils/api"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
+import { useAtom, useSetAtom } from "jotai"
 import { LogOut, Settings } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
 import { useRouter } from "next/router"
-import { AddFriendDialog } from "./AddFriendDialog"
-import { trpc } from "@/utils/api"
-import { Separator } from "./ui/separator"
-import { channelAtom, friendEmailAtom } from "@/pages"
-import { useAtom } from "jotai"
 import { useEffect, useState } from "react"
+import { AddFriendDialog } from "./AddFriendDialog"
+import { Separator } from "./ui/separator"
 
 export function AccountBarDropdown() {
   const router = useRouter()
@@ -70,6 +70,7 @@ function FriendsList({ userEmail }: { userEmail: string | null }) {
   const [friendEmail, setFriendEmail] = useAtom(friendEmailAtom)
   const [, setChannel] = useAtom(channelAtom)
   const [fetchChannel, setFetchChannel] = useState(false)
+  const setMessages = useSetAtom(messagesAtom)
 
   const { data: userFriends } = trpc.user.getFriendsByEmail.useQuery(
     { email: userEmail ?? "" },
@@ -89,13 +90,12 @@ function FriendsList({ userEmail }: { userEmail: string | null }) {
   useEffect(() => {
     if (friendEmail && userEmail) {
       setFetchChannel(true)
+      setChannel("")
     }
   }, [friendEmail, userEmail])
 
   useEffect(() => {
-    if (channelId) {
-      setChannel(channelId)
-    }
+    setChannel(channelId ?? "")
   }, [channelId, setChannel])
 
   if (!userFriends) return null
@@ -106,6 +106,7 @@ function FriendsList({ userEmail }: { userEmail: string | null }) {
       className="mt-2 flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-gray-300"
       onClick={() => {
         setFriendEmail(friend.email)
+        setMessages([])
       }}
     >
       <Avatar className="cursor-pointer">

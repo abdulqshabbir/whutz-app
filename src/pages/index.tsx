@@ -14,6 +14,7 @@ import { useEffect, useState } from "react"
 
 export const friendEmailAtom = atom("")
 export const channelAtom = atom("")
+export const messagesAtom = atom<Message[]>([])
 
 type SendMessageInput = RouterInputs["messages"]["send"]
 
@@ -36,8 +37,15 @@ function ChatRoom() {
   const router = useRouter()
   const isClient = useIsClient()
   const { mutate } = trpc.messages.send.useMutation()
-  const [messages, setMessages] = useState<Message[]>([])
+  const [messages, setMessages] = useAtom(messagesAtom)
   const [channel] = useAtom(channelAtom)
+
+  const { data: initialMessages } = trpc.messages.getByChannel.useQuery(
+    {
+      channel,
+    },
+    { enabled: Boolean(channel) }
+  )
 
   useEffect(() => {
     const pusher = new Pusher(env.NEXT_PUBLIC_PUSHER_KEY, {
@@ -46,9 +54,7 @@ function ChatRoom() {
     const pusherChannel = pusher.subscribe(channel)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const callback = ({ data }: { data: Message[] }) => {
-      console.log(data)
-      console.log("recieved data from friend!", data)
-      setMessages(() => data)
+      setMessages(data)
     }
     pusherChannel.bind("message", callback)
     return () => {
@@ -78,7 +84,9 @@ function ChatRoom() {
         <div
           className={`flex h-[calc(100vh-1rem-${CHAT_INPUT_HEIGHT_IN_PIXELS}px)] flex-col overflow-y-scroll`}
         >
-          <ChatHistory messages={messages} />
+          <ChatHistory
+            messages={messages.length === 0 ? initialMessages ?? [] : messages}
+          />
         </div>
         <div
           className={`m-2 flex h-[${CHAT_INPUT_HEIGHT_IN_PIXELS}px] bg-gray-500"`}

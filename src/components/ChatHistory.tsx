@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils"
+import { channelAtom, friendEmailAtom } from "@/pages"
 import { trpc } from "@/utils/api"
 import { format, fromUnixTime } from "date-fns"
+import { useAtomValue } from "jotai"
 import { useSession } from "next-auth/react"
 import React from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar"
@@ -14,13 +16,11 @@ export type Message = {
 }
 
 const ChatHistory = ({ messages }: { messages: Message[] }) => {
-  const session = useSession()
+  const channel = useAtomValue(channelAtom)
+  const friendEmail = useAtomValue(friendEmailAtom)
   const { data } = trpc.friend.getProfileInfo.useQuery({
-    channel: "hello-channel",
-    friendEmail:
-      session.data?.user.email === "abdulqshabbir@gmail.com"
-        ? "ashabbir@algomau.ca"
-        : "abdulqshabbir@gmail.com",
+    channel,
+    friendEmail,
   })
   return messages?.map((m) => (
     <React.Fragment key={crypto.randomUUID()}>
