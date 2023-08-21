@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react"
 import React from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar"
 import P from "./ui/typography/P"
+import { motion } from "framer-motion"
 
 export type Message = {
   from: "ME" | "FRIEND"
@@ -22,15 +23,16 @@ const ChatHistory = ({ messages }: { messages: Message[] }) => {
     channel,
     friendEmail,
   })
-  return messages?.map((m) => (
+  return messages?.map((m, idx) => (
     <React.Fragment key={crypto.randomUUID()}>
       {m.from === "ME" ? (
-        <UserMessage message={m} />
+        <UserMessage message={m} isLastMessage={messages?.length - 1 === idx} />
       ) : (
         <FriendMessage
           message={m}
           friendAvatarImage={data?.image ?? ""}
           friendName={data?.name ?? ""}
+          isLastMessage={messages?.length - 1 === idx}
         />
       )}
     </React.Fragment>
@@ -73,10 +75,42 @@ function convertTimestampToTime(timestamp: number) {
   }
 }
 
-function UserMessage({ message }: { message: Message }) {
+const Wrapper = ({
+  children,
+  isLastMessage,
+}: {
+  children: React.ReactNode
+  isLastMessage: boolean
+}) => {
+  if (isLastMessage) {
+    return (
+      <motion.div
+        initial={{ y: isLastMessage ? 100 : 0 }}
+        animate={{ y: 0 }}
+        className="mx-8 my-4 flex items-start justify-end gap-6"
+      >
+        {children}
+      </motion.div>
+    )
+  } else {
+    return (
+      <div className="mx-8 my-4 flex items-start justify-end gap-6">
+        {children}
+      </div>
+    )
+  }
+}
+
+function UserMessage({
+  message,
+  isLastMessage,
+}: {
+  message: Message
+  isLastMessage: boolean
+}) {
   const session = useSession()
   return (
-    <div className="mx-8 my-4 flex items-start justify-end gap-6">
+    <Wrapper isLastMessage={isLastMessage}>
       <ChatWrapper from="ME">
         <ChatText>{message.content}</ChatText>
       </ChatWrapper>
@@ -90,7 +124,7 @@ function UserMessage({ message }: { message: Message }) {
         </Avatar>
         <ChatTime>{convertTimestampToTime(message.timestamp)}</ChatTime>
       </div>
-    </div>
+    </Wrapper>
   )
 }
 
@@ -98,13 +132,15 @@ function FriendMessage({
   message,
   friendAvatarImage,
   friendName,
+  isLastMessage,
 }: {
   message: Message
   friendAvatarImage: string
   friendName: string
+  isLastMessage: boolean
 }) {
   return (
-    <div className="mx-8 my-4 flex items-start justify-start gap-6">
+    <Wrapper isLastMessage={isLastMessage}>
       <div className="flex flex-col items-center gap-1">
         <Avatar>
           <AvatarImage src={friendAvatarImage} alt="@shadcn" />
@@ -117,7 +153,7 @@ function FriendMessage({
       <ChatWrapper from="FRIEND">
         <ChatText>{message.content}</ChatText>
       </ChatWrapper>
-    </div>
+    </Wrapper>
   )
 }
 
