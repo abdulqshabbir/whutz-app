@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation"
 import Script from "next/script"
 import Pusher from "pusher-js"
 import { useEffect, useState } from "react"
+import { z } from "zod"
 
 export const friendEmailAtom = atom("")
 export const channelAtom = atom("")
@@ -40,7 +41,10 @@ function ChatRoom() {
     {
       channel,
     },
-    { enabled: Boolean(channel) }
+    {
+      enabled: Boolean(channel),
+      refetchOnWindowFocus: false,
+    }
   )
 
   useEffect(() => {
@@ -50,7 +54,31 @@ function ChatRoom() {
     const pusherChannel = pusher.subscribe(channel)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const callback = ({ data }: { data: Message[] }) => {
-      setMessages(data)
+      const messageSchema = z.array(
+        z.object({
+          from: z.union([z.literal("ME"), z.literal("FRIEND")]),
+          timestamp: z.number(),
+          type: z.string(),
+          content: z.string(),
+          shouldAnimate: z.boolean(),
+        })
+      )
+
+      const messages = data.map((m, idx) => {
+        if (idx === data.length - 1) {
+          return {
+            ...m,
+            shouldAnimate: true,
+          }
+        }
+        return {
+          ...m,
+          shouldAnimate: false,
+        }
+      })
+
+      messageSchema.parse(messages)
+      setMessages(messages)
     }
     pusherChannel.bind("message", callback)
     return () => {
@@ -73,11 +101,15 @@ function ChatRoom() {
     return null
   }
 
+  const mappedInitialMessages: Message[] = (initialMessages ?? []).map((m) => ({
+    ...m,
+    shouldAnimate: false,
+  }))
   return (
     <div className="flex h-screen w-full flex-col items-stretch bg-gray-100">
       <div className={`h-[85%] overflow-y-auto`}>
         <ChatHistory
-          messages={messages.length === 0 ? initialMessages ?? [] : messages}
+          messages={messages.length === 0 ? mappedInitialMessages : messages}
         />
       </div>
       <div className={`h-[15%]`}>

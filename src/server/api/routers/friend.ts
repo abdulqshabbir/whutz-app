@@ -1,4 +1,4 @@
-import { db } from "@/lib/db/dbClient"
+import { db } from "@/lib/db"
 import { users } from "@/lib/db/schema"
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc"
 import { eq } from "drizzle-orm"

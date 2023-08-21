@@ -1,5 +1,5 @@
 import { env } from "@/env.mjs"
-import { db } from "@/lib/db/dbClient"
+import { db } from "@/lib/db"
 import { messages, users } from "@/lib/db/schema"
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc"
 import { TRPCError } from "@trpc/server"
@@ -46,6 +46,7 @@ export const pusherRouter = createTRPCRouter({
       const channelId = input.channel
       const result = await db
         .select({
+          id: messages.id,
           sender: messages.sender,
           reciever: messages.reciever,
           type: messages.type,
@@ -118,6 +119,7 @@ export const pusherRouter = createTRPCRouter({
           timestamp: messages.timestamp,
           type: messages.type,
           content: messages.content,
+          id: messages.id,
         })
         .from(messages)
         .where(eq(messages.channel, input.channel))
@@ -129,6 +131,7 @@ export const pusherRouter = createTRPCRouter({
           type: m.type,
           content: m.content,
           from: (userId === fromId ? "ME" : "FRIEND") as Who,
+          id: m.id,
         })),
       })
 

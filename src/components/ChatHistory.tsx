@@ -14,6 +14,7 @@ export type Message = {
   timestamp: number
   type: string
   content: string
+  shouldAnimate: boolean
 }
 
 const ChatHistory = ({ messages }: { messages: Message[] }) => {
@@ -77,15 +78,15 @@ function convertTimestampToTime(timestamp: number) {
 
 const Wrapper = ({
   children,
-  isLastMessage,
+  shouldAnimate,
 }: {
   children: React.ReactNode
-  isLastMessage: boolean
+  shouldAnimate: boolean
 }) => {
-  if (isLastMessage) {
+  if (shouldAnimate) {
     return (
       <motion.div
-        initial={{ y: isLastMessage ? 100 : 0 }}
+        initial={{ y: 100 }}
         animate={{ y: 0 }}
         className="mx-8 my-4 flex items-start justify-end gap-6"
       >
@@ -103,14 +104,13 @@ const Wrapper = ({
 
 function UserMessage({
   message,
-  isLastMessage,
 }: {
   message: Message
   isLastMessage: boolean
 }) {
   const session = useSession()
   return (
-    <Wrapper isLastMessage={isLastMessage}>
+    <Wrapper shouldAnimate={message.shouldAnimate}>
       <ChatWrapper from="ME">
         <ChatText>{message.content}</ChatText>
       </ChatWrapper>
@@ -132,7 +132,6 @@ function FriendMessage({
   message,
   friendAvatarImage,
   friendName,
-  isLastMessage,
 }: {
   message: Message
   friendAvatarImage: string
@@ -140,7 +139,7 @@ function FriendMessage({
   isLastMessage: boolean
 }) {
   return (
-    <Wrapper isLastMessage={isLastMessage}>
+    <Wrapper shouldAnimate={message.shouldAnimate}>
       <div className="flex flex-col items-center gap-1">
         <Avatar>
           <AvatarImage src={friendAvatarImage} alt="@shadcn" />

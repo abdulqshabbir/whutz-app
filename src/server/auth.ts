@@ -1,5 +1,5 @@
 import { env } from "@/env.mjs"
-import { db, type DrizzleDB } from "@/lib/db/dbClient"
+import { db, type DrizzleDB } from "@/lib/db"
 import {
   accounts,
   sessions,
