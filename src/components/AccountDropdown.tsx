@@ -104,7 +104,11 @@ function FriendsList({ userEmail }: { userEmail: string | null }) {
   return userFriends.map((friend) => (
     <div
       key={crypto.randomUUID()}
-      className="mt-2 flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-gray-300"
+      className={`mt-2 flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-gray-300 ${
+        friendEmail === friend.email
+          ? " outline outline-4 outline-offset-2 outline-gray-400"
+          : ""
+      }`}
       onClick={() => {
         setFriendEmail(friend.email)
         setMessages([])
