@@ -92,6 +92,7 @@ function FriendsList({ userEmail }: { userEmail: string | null }) {
       setFetchChannel(true)
       setChannel("")
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [friendEmail, userEmail])
 
   useEffect(() => {
