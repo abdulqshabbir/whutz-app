@@ -7,7 +7,7 @@ const client = createClient({
   authToken: env.DB_AUTH_TOKEN,
 })
 
-const db = drizzle(client, { logger: true })
+const db = drizzle(client, { logger: false })
 type DrizzleDB = typeof db
 
 export { db, type DrizzleDB }

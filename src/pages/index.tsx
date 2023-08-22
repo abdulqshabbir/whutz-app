@@ -52,19 +52,9 @@ function ChatRoom() {
       cluster: env.NEXT_PUBLIC_PUSHER_CLUSTER,
     })
     const pusherChannel = pusher.subscribe(channel)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const callback = ({ data }: { data: Message[] }) => {
-      const messageSchema = z.array(
-        z.object({
-          from: z.union([z.literal("ME"), z.literal("FRIEND")]),
-          timestamp: z.number(),
-          type: z.string(),
-          content: z.string(),
-          shouldAnimate: z.boolean(),
-        })
-      )
-
-      const messages = data.map((m, idx) => {
+      console.log("xxx ", data)
+      const mappedMessages: Message[] = data.map((m, idx) => {
         if (idx === data.length - 1) {
           return {
             ...m,
@@ -77,8 +67,19 @@ function ChatRoom() {
         }
       })
 
-      messageSchema.parse(messages)
-      setMessages(messages)
+      const messageSchema = z.array(
+        z.object({
+          timestamp: z.number(),
+          type: z.string(),
+          content: z.string(),
+          fromEmail: z.string().email(),
+          toEmail: z.string().email(),
+          shouldAnimate: z.boolean(),
+        })
+      )
+
+      messageSchema.parse(mappedMessages)
+      setMessages(mappedMessages)
     }
     pusherChannel.bind("message", callback)
     return () => {

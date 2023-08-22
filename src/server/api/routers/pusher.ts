@@ -58,14 +58,37 @@ export const pusherRouter = createTRPCRouter({
         .orderBy(asc(messages.timestamp))
         .all()
 
+      const senderEmailAndIds = await db
+        .selectDistinct({
+          senderId: messages.sender,
+          senderEmail: users.email,
+        })
+        .from(messages)
+        .innerJoin(users, eq(messages.sender, users.id))
+        .all()
+
+      const recieverEmailAndIds = await db
+        .selectDistinct({
+          recieverId: messages.reciever,
+          recieverEmail: users.email,
+        })
+        .from(messages)
+        .innerJoin(users, eq(messages.reciever, users.id))
+        .all()
+
       const userId = await getUserIdFromEmail(ctx.session.user.email)
 
-      return result.map((m) => {
+      const returned = result.map((m) => {
         return {
           ...m,
-          from: (m.sender === userId ? "ME" : "FRIEND") as Who,
+          fromEmail: senderEmailAndIds.find((x) => x.senderId === m.sender)
+            ?.senderEmail as unknown as string,
+          toEmail: recieverEmailAndIds.find((x) => x.recieverId === m.reciever)
+            ?.recieverEmail as unknown as string,
         }
       })
+
+      return returned
     }),
   send: publicProcedure
     .input(
@@ -111,11 +134,10 @@ export const pusherRouter = createTRPCRouter({
         .returning()
         .get()
 
-      const userId = await getUserIdFromEmail(ctx.session.user.email)
-
       const allMessagesForChannel = await db
         .select({
           sender: messages.sender,
+          reciever: messages.reciever,
           timestamp: messages.timestamp,
           type: messages.type,
           content: messages.content,
@@ -125,13 +147,33 @@ export const pusherRouter = createTRPCRouter({
         .where(eq(messages.channel, input.channel))
         .all()
 
+      const senderEmailAndIds = await db
+        .selectDistinct({
+          senderId: messages.sender,
+          senderEmail: users.email,
+        })
+        .from(messages)
+        .innerJoin(users, eq(messages.sender, users.id))
+        .all()
+
+      const recieverEmailAndIds = await db
+        .selectDistinct({
+          recieverId: messages.reciever,
+          recieverEmail: users.email,
+        })
+        .from(messages)
+        .innerJoin(users, eq(messages.reciever, users.id))
+        .all()
+
       await pusher.trigger(input.channel, "message", {
         data: allMessagesForChannel.map((m) => ({
           timestamp: m.timestamp,
           type: m.type,
           content: m.content,
-          from: (userId === fromId ? "ME" : "FRIEND") as Who,
-          id: m.id,
+          fromEmail: senderEmailAndIds.find((x) => x.senderId === m.sender)
+            ?.senderEmail as unknown as string,
+          toEmail: recieverEmailAndIds.find((x) => x.recieverId === m.reciever)
+            ?.recieverEmail as unknown as string,
         })),
       })
 

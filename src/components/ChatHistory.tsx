@@ -10,7 +10,8 @@ import P from "./ui/typography/P"
 import { motion } from "framer-motion"
 
 export type Message = {
-  from: "ME" | "FRIEND"
+  fromEmail: string
+  toEmail: string
   timestamp: number
   type: string
   content: string
@@ -20,13 +21,14 @@ export type Message = {
 const ChatHistory = ({ messages }: { messages: Message[] }) => {
   const channel = useAtomValue(channelAtom)
   const friendEmail = useAtomValue(friendEmailAtom)
+  const session = useSession()
   const { data } = trpc.friend.getProfileInfo.useQuery({
     channel,
     friendEmail,
   })
   return messages?.map((m, idx) => (
     <React.Fragment key={crypto.randomUUID()}>
-      {m.from === "ME" ? (
+      {m.fromEmail === session?.data?.user?.email ? (
         <UserMessage message={m} isLastMessage={messages?.length - 1 === idx} />
       ) : (
         <FriendMessage
@@ -45,7 +47,7 @@ function ChatWrapper({
   children,
 }: {
   children: React.ReactNode
-  from: Message["from"]
+  from: "FRIEND" | "ME"
 }) {
   return (
     <div

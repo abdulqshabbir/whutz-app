@@ -89,11 +89,18 @@ export const userRouter = createTRPCRouter({
       // create a new user-friend-chanel link
       await db
         .insert(userFriends)
-        .values({
-          userId: userId,
-          friendId: friendId,
-          channelId: channel.id,
-        })
+        .values([
+          {
+            userId: userId,
+            friendId: friendId,
+            channelId: channel.id,
+          },
+          {
+            userId: friendId,
+            friendId: userId,
+            channelId: channel.id,
+          },
+        ])
         .returning()
         .get()
 
