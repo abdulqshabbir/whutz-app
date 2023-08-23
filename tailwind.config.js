@@ -1,3 +1,5 @@
+import defaultTheme from "tailwindcss/defaultTheme"
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
@@ -16,6 +18,9 @@ module.exports = {
       },
     },
     extend: {
+      fontFamily: {
+        Montserrat: ["Montserrat", ...defaultTheme.fontFamily.sans],
+      },
       keyframes: {
         "accordion-down": {
           from: { height: 0 },

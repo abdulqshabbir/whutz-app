@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/TextArea"
 import { env } from "@/env.mjs"
 import { useIsClient } from "@/hooks/useIsClient"
 import { trpc, type RouterInputs } from "@/utils/api"
-import { atom, useAtom } from "jotai"
+import { atom, useAtom, useAtomValue } from "jotai"
 import { useSession } from "next-auth/react"
 import Head from "next/head"
 import { useRouter } from "next/navigation"
@@ -12,6 +12,11 @@ import Script from "next/script"
 import Pusher from "pusher-js"
 import { useEffect, useState } from "react"
 import { z } from "zod"
+import Image from "next/image"
+import { Button } from "@/components/ui/Button"
+import { H1 } from "@/components/ui/typography/H1"
+import { P } from "@/components/ui/typography/P"
+import { AddFriendDialog } from "@/components/AddFriendDialog"
 
 export const friendEmailAtom = atom("")
 export const channelAtom = atom("")
@@ -35,7 +40,7 @@ function ChatRoom() {
   const isClient = useIsClient()
   const { mutate } = trpc.messages.send.useMutation()
   const [messages, setMessages] = useAtom(messagesAtom)
-  const [channel] = useAtom(channelAtom)
+  const channel = useAtomValue(channelAtom)
 
   const { data: initialMessages } = trpc.messages.getByChannel.useQuery(
     {
@@ -99,7 +104,17 @@ function ChatRoom() {
   }
 
   if (!channel) {
-    return null
+    return (
+      <div className="flex h-screen w-full flex-col items-center justify-center">
+        <div className="my-8 overflow-hidden rounded-lg">
+          <Image src="/assets/icon.png" alt="" width={200} height={200} />
+        </div>
+        <H1>Welcome to WhutzApp!</H1>
+        <P className="mb-8">The best place to chat with your friends.</P>
+        <Button variant={"default"}>Add a Friend to WhutzApp</Button>
+        <AddFriendDialog />
+      </div>
+    )
   }
 
   const mappedInitialMessages: Message[] = (initialMessages ?? []).map((m) => ({

@@ -8,13 +8,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/AlertDialog"
+import { trpc } from "@/utils/api"
 import { UserPlus } from "lucide-react"
+import { useState } from "react"
 import * as z from "zod"
 import { Button } from "./ui/Button"
-import { Label } from "./ui/Label"
 import { Input } from "./ui/InputField"
-import { useState } from "react"
-import { trpc } from "@/utils/api"
+import { Label } from "./ui/Label"
 
 const addFriendSchema = z.object({
   email: z.string().email(),

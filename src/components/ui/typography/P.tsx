@@ -10,11 +10,16 @@ const P = ({
 }) => {
   return (
     <div>
-      <p className={cn("leading-7 [&:not(:first-child)]:mt-6", className)}>
+      <p
+        className={cn(
+          "font-Montserrat leading-7 [&:not(:first-child)]:mt-6",
+          className
+        )}
+      >
         {children}
       </p>
     </div>
   )
 }
 
-export default P
+export { P }

@@ -6,7 +6,7 @@ import { useAtomValue } from "jotai"
 import { useSession } from "next-auth/react"
 import React from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar"
-import P from "./ui/typography/P"
+import { P } from "./ui/typography/P"
 import { motion } from "framer-motion"
 
 export type Message = {
