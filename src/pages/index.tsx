@@ -111,8 +111,6 @@ function ChatRoom() {
         </div>
         <H1>Welcome to WhutzApp!</H1>
         <P className="mb-8">The best place to chat with your friends.</P>
-        <Button variant={"default"}>Add a Friend to WhutzApp</Button>
-        <AddFriendDialog />
       </div>
     )
   }
