@@ -1,13 +1,7 @@
-import { type Message } from "@/components/ChatHistory"
 import { ChatRoom } from "@/components/ChatRoom"
-import { atom } from "jotai"
 import Head from "next/head"
 import Script from "next/script"
 import { AccountBar } from "@/components/AccountBar"
-
-export const friendEmailAtom = atom("")
-export const channelAtom = atom("")
-export const messagesAtom = atom<Message[]>([])
 
 export default function Page() {
   return (

@@ -1,6 +1,6 @@
 import { useUser } from "@/hooks/useUser"
 import { cn } from "@/lib/utils"
-import { channelAtom, friendEmailAtom } from "@/pages"
+import { channelAtom, friendEmailAtom } from "@/atoms"
 import { trpc } from "@/utils/api"
 import { format, fromUnixTime } from "date-fns"
 import { motion } from "framer-motion"

@@ -1,6 +1,6 @@
 import { useIsClient } from "@/hooks/useIsClient"
 import { useUser } from "@/hooks/useUser"
-import { channelAtom, friendEmailAtom, messagesAtom } from "@/pages"
+import { channelAtom, friendEmailAtom, messagesAtom } from "@/atoms"
 import { trpc } from "@/utils/api"
 import { useAtom, useAtomValue } from "jotai"
 import { useRouter } from "next/router"
