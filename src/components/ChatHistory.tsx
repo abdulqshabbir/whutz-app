@@ -1,15 +1,16 @@
+import { useUser } from "@/hooks/useUser"
 import { cn } from "@/lib/utils"
 import { channelAtom, friendEmailAtom } from "@/pages"
 import { trpc } from "@/utils/api"
 import { format, fromUnixTime } from "date-fns"
+import { motion } from "framer-motion"
 import { useAtomValue } from "jotai"
-import { useSession } from "next-auth/react"
 import React from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar"
 import { P } from "./ui/typography/P"
-import { motion } from "framer-motion"
 
 export type Message = {
+  id: number
   fromEmail: string
   toEmail: string
   timestamp: number
@@ -21,14 +22,14 @@ export type Message = {
 const ChatHistory = ({ messages }: { messages: Message[] }) => {
   const channel = useAtomValue(channelAtom)
   const friendEmail = useAtomValue(friendEmailAtom)
-  const session = useSession()
+  const { email } = useUser()
   const { data } = trpc.friend.getProfileInfo.useQuery({
     channel,
     friendEmail,
   })
   return messages?.map((m, idx) => (
-    <React.Fragment key={crypto.randomUUID()}>
-      {m.fromEmail === session?.data?.user?.email ? (
+    <React.Fragment key={m.id}>
+      {m.fromEmail === email ? (
         <UserMessage message={m} isLastMessage={messages?.length - 1 === idx} />
       ) : (
         <FriendMessage
@@ -110,7 +111,7 @@ function UserMessage({
   message: Message
   isLastMessage: boolean
 }) {
-  const session = useSession()
+  const { image } = useUser()
   return (
     <Wrapper shouldAnimate={message.shouldAnimate}>
       <ChatWrapper from="ME">
@@ -118,10 +119,7 @@ function UserMessage({
       </ChatWrapper>
       <div className="flex flex-col items-center gap-1">
         <Avatar>
-          <AvatarImage
-            src={session?.data?.user?.image ?? undefined}
-            alt="@shadcn"
-          />
+          <AvatarImage src={image ?? undefined} alt="@shadcn" />
           <AvatarFallback className="bg-gray-300">A</AvatarFallback>
         </Avatar>
         <ChatTime>{convertTimestampToTime(message.timestamp)}</ChatTime>

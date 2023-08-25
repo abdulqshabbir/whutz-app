@@ -1,22 +1,20 @@
 import { AccountBarDropdown } from "@/components/AccountDropdown"
 import { ChatHistory, type Message } from "@/components/ChatHistory"
 import { Textarea } from "@/components/ui/TextArea"
+import { H1 } from "@/components/ui/typography/H1"
+import { P } from "@/components/ui/typography/P"
 import { env } from "@/env.mjs"
 import { useIsClient } from "@/hooks/useIsClient"
+import { useUser } from "@/hooks/useUser"
 import { trpc, type RouterInputs } from "@/utils/api"
 import { atom, useAtom, useAtomValue } from "jotai"
-import { useSession } from "next-auth/react"
 import Head from "next/head"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import Script from "next/script"
 import Pusher from "pusher-js"
 import { useEffect, useState } from "react"
 import { z } from "zod"
-import Image from "next/image"
-import { Button } from "@/components/ui/Button"
-import { H1 } from "@/components/ui/typography/H1"
-import { P } from "@/components/ui/typography/P"
-import { AddFriendDialog } from "@/components/AddFriendDialog"
 
 export const friendEmailAtom = atom("")
 export const channelAtom = atom("")
@@ -35,7 +33,7 @@ function AccountBar() {
 }
 
 function ChatRoom() {
-  const session = useSession()
+  const { isAuthed } = useUser()
   const router = useRouter()
   const isClient = useIsClient()
   const { mutate } = trpc.messages.send.useMutation()
@@ -91,9 +89,9 @@ function ChatRoom() {
       pusherChannel.unbind("message", callback)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session.data?.user.id, channel])
+  }, [channel])
 
-  if (isClient && !session?.data) {
+  if (isClient && !isAuthed) {
     void router.push("/signup")
   }
 
@@ -140,7 +138,7 @@ function ChatInput({
 }: {
   sendMesage: (message: SendMessageInput) => void
 }) {
-  const session = useSession()
+  const { email } = useUser()
   const [newMessage, setNewMessage] = useState("")
   const [friendEmail] = useAtom(friendEmailAtom)
   const [channel] = useAtom(channelAtom)
@@ -156,9 +154,9 @@ function ChatInput({
       }}
       onKeyUp={(e) => {
         if (e.key === "Enter") {
-          if (session.data?.user.email) {
+          if (email) {
             sendMesage({
-              fromEmail: session.data?.user.email,
+              fromEmail: email,
               toEmail: friendEmail,
               channel: channel,
               content: newMessage.trimEnd(),
@@ -171,7 +169,7 @@ function ChatInput({
   )
 }
 
-export default function Home() {
+export default function Page() {
   return (
     <>
       <Head>

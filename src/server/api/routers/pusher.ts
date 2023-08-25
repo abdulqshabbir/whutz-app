@@ -76,8 +76,6 @@ export const pusherRouter = createTRPCRouter({
         .innerJoin(users, eq(messages.reciever, users.id))
         .all()
 
-      const userId = await getUserIdFromEmail(ctx.session.user.email)
-
       const returned = result.map((m) => {
         return {
           ...m,
@@ -85,6 +83,7 @@ export const pusherRouter = createTRPCRouter({
             ?.senderEmail as unknown as string,
           toEmail: recieverEmailAndIds.find((x) => x.recieverId === m.reciever)
             ?.recieverEmail as unknown as string,
+          id: m.id,
         }
       })
 
@@ -174,6 +173,7 @@ export const pusherRouter = createTRPCRouter({
             ?.senderEmail as unknown as string,
           toEmail: recieverEmailAndIds.find((x) => x.recieverId === m.reciever)
             ?.recieverEmail as unknown as string,
+          id: m.id,
         })),
       })
 

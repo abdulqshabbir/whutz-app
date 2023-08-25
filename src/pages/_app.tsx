@@ -3,7 +3,8 @@ import { SessionProvider } from "next-auth/react"
 import { type AppType } from "next/app"
 import { trpc } from "@/utils/api"
 import "@/styles/globals.css"
-import { Provider } from "jotai"
+import { Provider as JotaiProvider } from "jotai"
+import { UserProvider } from "@/hooks/useUser"
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -11,9 +12,11 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
   return (
     <SessionProvider session={session}>
-      <Provider>
-        <Component {...pageProps} />
-      </Provider>
+      <UserProvider>
+        <JotaiProvider>
+          <Component {...pageProps} />
+        </JotaiProvider>
+      </UserProvider>
     </SessionProvider>
   )
 }

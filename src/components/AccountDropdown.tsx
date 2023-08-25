@@ -8,12 +8,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu"
 
+import { useUser } from "@/hooks/useUser"
 import { channelAtom, friendEmailAtom, messagesAtom } from "@/pages"
 import { trpc } from "@/utils/api"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
 import { useAtom, useSetAtom } from "jotai"
 import { LogOut, Settings } from "lucide-react"
-import { signOut, useSession } from "next-auth/react"
+import { signOut } from "next-auth/react"
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 import { AddFriendDialog } from "./AddFriendDialog"
@@ -21,17 +22,14 @@ import { Separator } from "./ui/separator"
 
 export function AccountBarDropdown() {
   const router = useRouter()
-  const session = useSession()
+  const { image, name } = useUser()
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <div className="mt-2 flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-gray-300">
             <Avatar className="cursor-pointer">
-              <AvatarImage
-                src={session?.data?.user?.image ?? undefined}
-                alt="@shadcn"
-              />
+              <AvatarImage src={image ?? undefined} alt="@shadcn" />
               <AvatarFallback className="h-12 w-12 rounded-full bg-blue-200 p-4 hover:bg-blue-300">
                 AS
               </AvatarFallback>
@@ -40,7 +38,7 @@ export function AccountBarDropdown() {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="relative left-4 top-2 w-56">
           <DropdownMenuLabel>
-            {session?.data?.user?.name?.split(" ")[0]}&apos;s Account
+            {name?.split(" ")[0]}&apos;s Account
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
@@ -61,16 +59,17 @@ export function AccountBarDropdown() {
       </DropdownMenu>
       <AddFriendDialog />
       <Separator className="w-5/6 bg-gray-300" />
-      <FriendsList userEmail={session.data?.user.email ?? null} />
+      <FriendsList />
     </>
   )
 }
 
-function FriendsList({ userEmail }: { userEmail: string | null }) {
+function FriendsList() {
   const [friendEmail, setFriendEmail] = useAtom(friendEmailAtom)
   const [, setChannel] = useAtom(channelAtom)
   const [fetchChannel, setFetchChannel] = useState(false)
   const setMessages = useSetAtom(messagesAtom)
+  const { email: userEmail } = useUser()
 
   const { data: userFriends } = trpc.user.getFriendsByEmail.useQuery(
     { email: userEmail ?? "" },
@@ -103,7 +102,7 @@ function FriendsList({ userEmail }: { userEmail: string | null }) {
 
   return userFriends.map((friend) => (
     <div
-      key={crypto.randomUUID()}
+      key={friend.email}
       className={`mt-2 flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-gray-300 ${
         friendEmail === friend.email
           ? " outline outline-4 outline-offset-2 outline-gray-400"

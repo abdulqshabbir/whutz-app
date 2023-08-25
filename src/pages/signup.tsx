@@ -7,16 +7,17 @@ import {
   CardTitle,
 } from "@/components/ui/Card"
 import { Separator } from "@/components/ui/separator"
-import Image from "next/image"
-import { signIn, useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
 import { useIsClient } from "@/hooks/useIsClient"
+import { useUser } from "@/hooks/useUser"
+import { signIn } from "next-auth/react"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 const SignUp = ({}) => {
   const isClient = useIsClient()
   const router = useRouter()
-  const session = useSession()
-  if (isClient && session.status === "authenticated") {
+  const { isAuthed } = useUser()
+  if (isClient && isAuthed) {
     void router.push("/")
   }
   return (
