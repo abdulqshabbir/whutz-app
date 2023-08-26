@@ -30,14 +30,17 @@ export function AccountBarDropdown() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <div className="mt-2 flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-gray-300">
-            l
-            <Avatar className="cursor-pointer">
-              {!image && <Skeleton />}
-              {image && <AvatarImage src={image ?? undefined} alt="@shadcn" />}
-              <AvatarFallback className="h-12 w-12 rounded-full bg-blue-200 p-4 hover:bg-blue-300">
-                AS
-              </AvatarFallback>
-            </Avatar>
+            {image && (
+              <Avatar className="cursor-pointer">
+                <AvatarImage src={image ?? undefined} alt="@shadcn" />
+                <AvatarFallback className="h-12 w-12 rounded-full bg-blue-200 p-4 hover:bg-blue-300">
+                  AS
+                </AvatarFallback>
+              </Avatar>
+            )}
+            {!image && (
+              <Skeleton className="mb-2 h-12 w-12 rounded-full bg-gray-300 p-4" />
+            )}
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="relative left-4 top-2 w-56">
