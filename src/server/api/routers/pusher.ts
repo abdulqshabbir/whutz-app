@@ -19,7 +19,6 @@ function now() {
   return Math.floor(new Date().getTime() / 1000)
 }
 
-type Who = "ME" | "FRIEND"
 export async function getUserIdFromEmail(email: string) {
   const user = await db
     .select({
