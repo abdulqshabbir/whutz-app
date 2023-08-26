@@ -30,10 +30,13 @@ const ChatHistory = ({
   const channel = useAtomValue(channelAtom)
   const friendEmail = useAtomValue(friendEmailAtom)
   const { email } = useUser()
-  const { data } = trpc.friend.getProfileInfo.useQuery({
-    channel,
-    friendEmail,
-  })
+  const { data } = trpc.friend.getProfileInfo.useQuery(
+    {
+      channel,
+      friendEmail,
+    },
+    { enabled: Boolean(channel) && Boolean(friendEmail) }
+  )
   const lastMessageRef = useAtomValue(lastMessageRefAtom)
 
   if (isMessagesLoading) {

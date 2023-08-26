@@ -46,6 +46,11 @@ export function ChatRoom() {
         refetchOnWindowFocus: false,
       }
     )
+  useEffect(() => {
+    if (!isMessagesLoading) {
+      lastMessageRef.current?.scrollIntoView()
+    }
+  }, [isMessagesLoading, lastMessageRef])
 
   useEffect(() => {
     const pusher = new Pusher(env.NEXT_PUBLIC_PUSHER_KEY, {
