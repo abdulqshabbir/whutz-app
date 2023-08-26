@@ -1,12 +1,13 @@
+import { channelAtom, friendEmailAtom } from "@/atoms"
 import { useUser } from "@/hooks/useUser"
 import { cn } from "@/lib/utils"
-import { channelAtom, friendEmailAtom } from "@/atoms"
 import { trpc } from "@/utils/api"
 import { format, fromUnixTime } from "date-fns"
 import { motion } from "framer-motion"
 import { useAtomValue } from "jotai"
 import React from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar"
+import { ChatHistorySkeleton } from "./ui/Skeleton"
 import { P } from "./ui/typography/P"
 
 export type Message = {
@@ -19,7 +20,13 @@ export type Message = {
   shouldAnimate: boolean
 }
 
-const ChatHistory = ({ messages }: { messages: Message[] }) => {
+const ChatHistory = ({
+  messages,
+  isMessagesLoading,
+}: {
+  messages: Message[]
+  isMessagesLoading: boolean
+}) => {
   const channel = useAtomValue(channelAtom)
   const friendEmail = useAtomValue(friendEmailAtom)
   const { email } = useUser()
@@ -27,6 +34,10 @@ const ChatHistory = ({ messages }: { messages: Message[] }) => {
     channel,
     friendEmail,
   })
+
+  if (isMessagesLoading) {
+    return <ChatHistorySkeleton />
+  }
   return messages?.map((m, idx) => (
     <React.Fragment key={m.id}>
       {m.fromEmail === email ? (

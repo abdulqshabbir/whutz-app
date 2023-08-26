@@ -26,15 +26,16 @@ export function ChatRoom() {
   const [messages, setMessages] = useAtom(messagesAtom)
   const channel = useAtomValue(channelAtom)
 
-  const { data: initialMessages } = trpc.messages.getByChannel.useQuery(
-    {
-      channel,
-    },
-    {
-      enabled: Boolean(channel),
-      refetchOnWindowFocus: false,
-    }
-  )
+  const { data: initialMessages, isLoading: isMessagesLoading } =
+    trpc.messages.getByChannel.useQuery(
+      {
+        channel,
+      },
+      {
+        enabled: Boolean(channel),
+        refetchOnWindowFocus: false,
+      }
+    )
 
   useEffect(() => {
     const pusher = new Pusher(env.NEXT_PUBLIC_PUSHER_KEY, {
@@ -108,6 +109,7 @@ export function ChatRoom() {
       <div className={`h-[85%] overflow-y-auto`}>
         <ChatHistory
           messages={messages.length === 0 ? mappedInitialMessages : messages}
+          isMessagesLoading={isMessagesLoading}
         />
       </div>
       <div className={`h-[15%]`}>
