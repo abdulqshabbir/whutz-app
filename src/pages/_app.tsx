@@ -5,6 +5,7 @@ import { trpc } from "@/utils/api"
 import "@/styles/globals.css"
 import { Provider as JotaiProvider } from "jotai"
 import { UserProvider } from "@/hooks/useUser"
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -15,6 +16,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
       <UserProvider>
         <JotaiProvider>
           <Component {...pageProps} />
+          <ReactQueryDevtools />
         </JotaiProvider>
       </UserProvider>
     </SessionProvider>
