@@ -19,7 +19,7 @@ import { signOut } from "next-auth/react"
 import { useRouter } from "next/router"
 import { useEffect } from "react"
 import { AddFriendDialog } from "./AddFriendDialog"
-import { Skeleton } from "./ui/Skeleton"
+import { AvatarSkeleton } from "./ui/Skeleton"
 import { Separator } from "./ui/separator"
 
 export function AccountBarDropdown() {
@@ -38,9 +38,7 @@ export function AccountBarDropdown() {
                 </AvatarFallback>
               </Avatar>
             )}
-            {!image && (
-              <Skeleton className="mb-2 h-12 w-12 rounded-full bg-gray-300 p-4" />
-            )}
+            {!image && <AvatarSkeleton />}
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="relative left-4 top-2 w-56">
@@ -90,10 +88,10 @@ function FriendsList() {
   if (isFriendsLoading) {
     return (
       <div>
-        <Skeleton className="mb-2 h-12 w-12 rounded-full bg-gray-300 p-4" />
-        <Skeleton className="mb-2 h-12 w-12 rounded-full bg-gray-300 p-4" />
-        <Skeleton className="mb-2 h-12 w-12 rounded-full bg-gray-300 p-4" />
-        <Skeleton className="mb-2 h-12 w-12 rounded-full bg-gray-300 p-4" />
+        <AvatarSkeleton />
+        <AvatarSkeleton />
+        <AvatarSkeleton />
+        <AvatarSkeleton />
       </div>
     )
   }

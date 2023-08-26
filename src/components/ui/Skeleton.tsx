@@ -15,4 +15,8 @@ function Skeleton({
   )
 }
 
-export { Skeleton }
+function AvatarSkeleton() {
+  return <Skeleton className="mb-2 h-12 w-12 rounded-full bg-gray-300 p-4" />
+}
+
+export { Skeleton, AvatarSkeleton }
