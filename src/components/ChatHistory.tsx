@@ -1,4 +1,4 @@
-import { channelAtom, friendEmailAtom } from "@/atoms"
+import { channelAtom, friendEmailAtom, lastMessageRefAtom } from "@/atoms"
 import { useUser } from "@/hooks/useUser"
 import { cn } from "@/lib/utils"
 import { trpc } from "@/utils/api"
@@ -34,24 +34,34 @@ const ChatHistory = ({
     channel,
     friendEmail,
   })
+  const lastMessageRef = useAtomValue(lastMessageRefAtom)
 
   if (isMessagesLoading) {
     return <ChatHistorySkeleton />
   }
-  return messages?.map((m, idx) => (
-    <React.Fragment key={m.id}>
-      {m.fromEmail === email ? (
-        <UserMessage message={m} isLastMessage={messages?.length - 1 === idx} />
-      ) : (
-        <FriendMessage
-          message={m}
-          friendAvatarImage={data?.image ?? ""}
-          friendName={data?.name ?? ""}
-          isLastMessage={messages?.length - 1 === idx}
-        />
-      )}
-    </React.Fragment>
-  ))
+
+  return (
+    <>
+      {messages?.map((m, idx) => (
+        <React.Fragment key={m.id}>
+          {m.fromEmail === email ? (
+            <UserMessage
+              message={m}
+              isLastMessage={messages?.length - 1 === idx}
+            />
+          ) : (
+            <FriendMessage
+              message={m}
+              friendAvatarImage={data?.image ?? ""}
+              friendName={data?.name ?? ""}
+              isLastMessage={messages?.length - 1 === idx}
+            />
+          )}
+        </React.Fragment>
+      ))}
+      <div ref={lastMessageRef} className="h-0 w-0"></div>
+    </>
+  )
 }
 
 function ChatWrapper({

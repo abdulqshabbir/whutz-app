@@ -1,6 +1,11 @@
 import { useIsClient } from "@/hooks/useIsClient"
 import { useUser } from "@/hooks/useUser"
-import { channelAtom, friendEmailAtom, messagesAtom } from "@/atoms"
+import {
+  channelAtom,
+  friendEmailAtom,
+  lastMessageRefAtom,
+  messagesAtom,
+} from "@/atoms"
 import { trpc } from "@/utils/api"
 import { useAtom, useAtomValue } from "jotai"
 import { useRouter } from "next/router"
@@ -25,6 +30,11 @@ export function ChatRoom() {
   const { mutate } = trpc.messages.send.useMutation()
   const [messages, setMessages] = useAtom(messagesAtom)
   const channel = useAtomValue(channelAtom)
+  const lastMessageRef = useAtomValue(lastMessageRefAtom)
+
+  useEffect(() => {
+    lastMessageRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [channel, messages.length, lastMessageRef])
 
   const { data: initialMessages, isLoading: isMessagesLoading } =
     trpc.messages.getByChannel.useQuery(
