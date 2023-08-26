@@ -8,16 +8,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu"
 
-import { useUser } from "@/hooks/useUser"
 import { channelAtom, friendEmailAtom, messagesAtom } from "@/atoms"
-import { trpc } from "@/utils/api"
+import { useChannelId } from "@/hooks/useChannelId"
+import { useFriends } from "@/hooks/useFriends"
+import { useUser } from "@/hooks/useUser"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
 import { useAtom, useSetAtom } from "jotai"
 import { LogOut, Settings } from "lucide-react"
 import { signOut } from "next-auth/react"
 import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { AddFriendDialog } from "./AddFriendDialog"
+import { Skeleton } from "./ui/Skeleton"
 import { Separator } from "./ui/separator"
 
 export function AccountBarDropdown() {
@@ -28,8 +30,10 @@ export function AccountBarDropdown() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <div className="mt-2 flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-gray-300">
+            l
             <Avatar className="cursor-pointer">
-              <AvatarImage src={image ?? undefined} alt="@shadcn" />
+              {!image && <Skeleton />}
+              {image && <AvatarImage src={image ?? undefined} alt="@shadcn" />}
               <AvatarFallback className="h-12 w-12 rounded-full bg-blue-200 p-4 hover:bg-blue-300">
                 AS
               </AvatarFallback>
@@ -66,41 +70,36 @@ export function AccountBarDropdown() {
 
 function FriendsList() {
   const [friendEmail, setFriendEmail] = useAtom(friendEmailAtom)
-  const [, setChannel] = useAtom(channelAtom)
-  const [fetchChannel, setFetchChannel] = useState(false)
   const setMessages = useSetAtom(messagesAtom)
-  const { email: userEmail } = useUser()
+  const setChannel = useSetAtom(channelAtom)
 
-  const { data: userFriends } = trpc.user.getFriendsByEmail.useQuery(
-    { email: userEmail ?? "" },
-    { enabled: Boolean(userEmail) }
-  )
-  const { data: channelId } =
-    trpc.channel.getChannelByUserAndFriendEmail.useQuery(
-      {
-        userEmail: userEmail ?? "",
-        friendEmail: friendEmail ?? "",
-      },
-      {
-        enabled: fetchChannel,
-      }
-    )
+  const { channelId } = useChannelId({
+    friendEmail,
+    shouldFetch: Boolean(friendEmail),
+  })
 
-  useEffect(() => {
-    if (friendEmail && userEmail) {
-      setFetchChannel(true)
-      setChannel("")
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [friendEmail, userEmail])
+  const { friends, isFriendsError, isFriendsLoading } = useFriends()
 
   useEffect(() => {
     setChannel(channelId ?? "")
   }, [channelId, setChannel])
 
-  if (!userFriends) return null
+  if (isFriendsLoading) {
+    return (
+      <div>
+        <Skeleton className="mb-2 h-12 w-12 rounded-full bg-gray-300 p-4" />
+        <Skeleton className="mb-2 h-12 w-12 rounded-full bg-gray-300 p-4" />
+        <Skeleton className="mb-2 h-12 w-12 rounded-full bg-gray-300 p-4" />
+        <Skeleton className="mb-2 h-12 w-12 rounded-full bg-gray-300 p-4" />
+      </div>
+    )
+  }
 
-  return userFriends.map((friend) => (
+  if (isFriendsError || !friends) {
+    return null
+  }
+
+  return friends.map((friend) => (
     <div
       key={friend.email}
       className={`mt-2 flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-gray-300 ${
