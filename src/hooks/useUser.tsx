@@ -14,7 +14,9 @@ const UserContext = React.createContext<User>({} as User)
 
 export function useUser() {
   if (UserContext === null) {
-    throw Error("User unauthenticated")
+    throw Error(
+      "useUser hook must be used inside of a component that is wrapped in a UserProvider"
+    )
   }
   return useContext(UserContext)
 }
