@@ -1,25 +1,21 @@
-import { useIsClient } from "@/hooks/useIsClient"
-import { useUser } from "@/hooks/useUser"
 import {
   channelAtom,
   friendEmailAtom,
   lastMessageRefAtom,
   messagesAtom,
 } from "@/atoms"
-import { trpc } from "@/utils/api"
+import { type Message } from "@/components/ChatHistory"
+import { env } from "@/env.mjs"
+import { useIsClient } from "@/hooks/useIsClient"
+import { useUser } from "@/hooks/useUser"
+import { trpc, type RouterInputs } from "@/utils/api"
 import { useAtom, useAtomValue } from "jotai"
 import { useRouter } from "next/router"
-import { env } from "@/env.mjs"
 import Pusher from "pusher-js"
 import { useEffect, useState } from "react"
 import { z } from "zod"
 import { ChatHistory } from "./ChatHistory"
 import { Textarea } from "./ui/TextArea"
-import { H1 } from "./ui/typography/H1"
-import { type RouterInputs } from "@/utils/api"
-import Image from "next/image"
-import { P } from "./ui/typography/P"
-import { type Message } from "@/components/ChatHistory"
 
 type SendMessageInput = RouterInputs["messages"]["send"]
 
@@ -34,7 +30,11 @@ export function ChatRoom() {
 
   useEffect(() => {
     lastMessageRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [channel, messages.length, lastMessageRef])
+  }, [messages.length, lastMessageRef])
+
+  useEffect(() => {
+    lastMessageRef.current?.scrollIntoView()
+  }, [channel, lastMessageRef])
 
   const { data: initialMessages, isLoading: isMessagesLoading } =
     trpc.messages.getByChannel.useQuery(
@@ -96,18 +96,6 @@ export function ChatRoom() {
     mutate({
       ...input,
     })
-  }
-
-  if (!channel) {
-    return (
-      <div className="flex h-screen w-full flex-col items-center justify-center">
-        <div className="my-8 overflow-hidden rounded-lg">
-          <Image src="/assets/icon.png" alt="" width={200} height={200} />
-        </div>
-        <H1>Welcome to WhutzApp!</H1>
-        <P className="mb-8">The best place to chat with your friends.</P>
-      </div>
-    )
   }
 
   const mappedInitialMessages: Message[] = (initialMessages ?? []).map((m) => ({

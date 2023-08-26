@@ -18,7 +18,7 @@ const SignUp = ({}) => {
   const router = useRouter()
   const { isAuthed } = useUser()
   if (isClient && isAuthed) {
-    void router.push("/")
+    void router.push("/welcome")
   }
   return (
     <div className="flex min-h-screen items-center justify-center">

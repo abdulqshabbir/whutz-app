@@ -73,7 +73,7 @@ function FriendsList() {
   const [friendEmail, setFriendEmail] = useAtom(friendEmailAtom)
   const setMessages = useSetAtom(messagesAtom)
   const setChannel = useSetAtom(channelAtom)
-
+  const router = useRouter()
   const { channelId } = useChannelId({
     friendEmail,
     shouldFetch: Boolean(friendEmail),
@@ -111,6 +111,7 @@ function FriendsList() {
       onClick={() => {
         setFriendEmail(friend.email)
         setMessages([])
+        void router.push("/")
       }}
     >
       <Avatar className="cursor-pointer">
