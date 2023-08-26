@@ -15,7 +15,7 @@ function Skeleton({
   )
 }
 
-function AvatarSkeleton({ className }: { className: string }) {
+function AvatarSkeleton({ className }: { className?: string }) {
   return (
     <Skeleton
       className={cn(`mb-2 h-12 w-12 rounded-full bg-gray-300 p-4`, className)}
