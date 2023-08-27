@@ -9,7 +9,6 @@ export const friendRouter = createTRPCRouter({
     .input(
       z.object({
         friendEmail: z.string().min(1),
-        channel: z.string().min(1),
       })
     )
     .query(async ({ input }) => {
