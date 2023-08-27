@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^0.3.0",
+    "@aws-sdk/client-s3": "^3.400.0",
+    "@aws-sdk/s3-presigned-post": "^3.400.0",
     "@hookform/resolvers": "^3.2.0",
     "@libsql/client": "^0.3.1",
     "@paralleldrive/cuid2": "^2.2.2",

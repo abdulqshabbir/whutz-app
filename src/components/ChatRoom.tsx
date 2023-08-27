@@ -15,6 +15,7 @@ import Pusher from "pusher-js"
 import { useEffect, useState } from "react"
 import { z } from "zod"
 import { ChatHistory } from "./ChatHistory"
+import { Input } from "./ui/InputField"
 import { Textarea } from "./ui/TextArea"
 
 type SendMessageInput = RouterInputs["messages"]["send"]
@@ -133,29 +134,62 @@ function ChatInput({
   const [newMessage, setNewMessage] = useState("")
   const [friendEmail] = useAtom(friendEmailAtom)
   const [channel] = useAtom(channelAtom)
+  const presignedPostMutation = trpc.s3.createPreSignedPostUrl.useMutation()
+
+  async function uploadToS3(file: File | undefined) {
+    if (!file) return
+
+    const result = await presignedPostMutation.mutateAsync()
+
+    if (!result.ok || !result.presignedFields || !result.presignedUrl) return
+
+    const fields = {
+      ...result.presignedFields,
+      file,
+      "Content-Type": file.type,
+    }
+    const url = result.presignedUrl
+
+    const formData = new FormData()
+    for (const [key, value] of Object.entries(fields)) {
+      formData.append(key, value)
+    }
+    fetch(url, {
+      method: "POST",
+      body: formData,
+    })
+      .then(() => console.log("uploaded to S3!"))
+      .catch(console.error)
+  }
 
   return (
-    <Textarea
-      className="m-0 h-full bg-gray-50 p-4"
-      style={{ resize: "none" }}
-      placeholder="Write a message"
-      value={newMessage}
-      onChange={(e) => {
-        setNewMessage(e.target.value)
-      }}
-      onKeyUp={(e) => {
-        if (e.key === "Enter") {
-          if (email) {
-            sendMesage({
-              fromEmail: email,
-              toEmail: friendEmail,
-              channel: channel,
-              content: newMessage.trimEnd(),
-            })
-            setNewMessage("")
+    <div className="relative">
+      <Textarea
+        className="m-0 h-full bg-gray-50 p-4"
+        style={{ resize: "none" }}
+        placeholder="Write a message"
+        value={newMessage}
+        onChange={(e) => {
+          setNewMessage(e.target.value)
+        }}
+        onKeyUp={(e) => {
+          if (e.key === "Enter") {
+            if (email) {
+              sendMesage({
+                fromEmail: email,
+                toEmail: friendEmail,
+                channel: channel,
+                content: newMessage.trimEnd(),
+              })
+              setNewMessage("")
+            }
           }
-        }
-      }}
-    />
+        }}
+      />
+      <Input
+        type="file"
+        onChange={(e) => void uploadToS3(e.target.files?.[0])}
+      />
+    </div>
   )
 }
