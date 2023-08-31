@@ -6,6 +6,7 @@ import { TRPCError } from "@trpc/server"
 import { asc, eq } from "drizzle-orm"
 import Pusher from "pusher"
 import { z } from "zod"
+import { type Message } from "@/components/ChatHistory"
 
 export const pusher = new Pusher({
   appId: env.PUSHER_APP_ID,
@@ -95,6 +96,7 @@ export const pusherRouter = createTRPCRouter({
         toEmail: z.string().email(),
         channel: z.string().min(1),
         content: z.string().min(1),
+        type: z.enum(["text", "image"]),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -125,7 +127,7 @@ export const pusherRouter = createTRPCRouter({
           sender: fromId,
           reciever: toId,
           channel: input.channel,
-          type: "text",
+          type: input.type,
           content: input.content,
           timestamp: now(),
         })
@@ -163,18 +165,36 @@ export const pusherRouter = createTRPCRouter({
         .innerJoin(users, eq(messages.reciever, users.id))
         .all()
 
-      await pusher.trigger(input.channel, "message", {
-        data: allMessagesForChannel.map((m) => ({
-          timestamp: m.timestamp,
-          type: m.type,
-          content: m.content,
-          fromEmail: senderEmailAndIds.find((x) => x.senderId === m.sender)
-            ?.senderEmail as unknown as string,
-          toEmail: recieverEmailAndIds.find((x) => x.recieverId === m.reciever)
-            ?.recieverEmail as unknown as string,
-          id: m.id,
-        })),
-      })
+      async function triggerChunked(
+        pusher: Pusher,
+        channel: string | string[],
+        event: string,
+        data: Omit<Message, "shouldAnimage">
+      ) {
+        const chunkSize = 4000
+        const str = JSON.stringify(data)
+        const msgId = Math.random() + ""
+        for (let i = 0; i * chunkSize < str.length; i++) {
+          await pusher.trigger(channel, "chunked-" + event, {
+            id: msgId,
+            index: i,
+            chunk: str.substr(i * chunkSize, chunkSize),
+            final: chunkSize * (i + 1) >= str.length,
+          })
+        }
+      }
+
+      const data = allMessagesForChannel.map((m) => ({
+        timestamp: m.timestamp,
+        type: m.type,
+        content: m.content,
+        fromEmail: senderEmailAndIds.find((x) => x.senderId === m.sender)
+          ?.senderEmail as unknown as string,
+        toEmail: recieverEmailAndIds.find((x) => x.recieverId === m.reciever)
+          ?.recieverEmail as unknown as string,
+        id: m.id,
+      }))
+      await triggerChunked(pusher, input.channel, "message", data)
 
       return {
         data: {

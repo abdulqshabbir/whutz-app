@@ -29,9 +29,10 @@ export const s3Router = createTRPCRouter({
         message: "Unauthorized",
       })
     }
+    const fileId = crypto.randomUUID()
     const preSignedPostOptions: PresignedPostOptions = {
       Bucket: "whutzapp",
-      Key: `${userId}/${crypto.randomUUID()}`,
+      Key: `${userId}/${fileId}`,
       Fields: {
         acl: "public-read",
       },
@@ -47,6 +48,7 @@ export const s3Router = createTRPCRouter({
         ok: 1,
         presignedFields: fields,
         presignedUrl: url,
+        fileId,
       }
     } catch (e) {
       console.error("pre-signed error: ", e)

@@ -74,7 +74,7 @@ function ChatWrapper({
 }) {
   return (
     <div
-      className={cn("min-h-[40px] w-full rounded-md bg-gray-300 p-2", {
+      className={cn("min-h-[40px] max-w-fit rounded-md bg-gray-300 p-2", {
         "bg-gray-200": from === "ME",
         "bg-blue-100": from === "FRIEND",
       })}
@@ -104,27 +104,43 @@ function convertTimestampToTime(timestamp: number) {
 const Wrapper = ({
   children,
   shouldAnimate,
+  from,
 }: {
   children: React.ReactNode
   shouldAnimate: boolean
+  from: "FRIEND" | "ME"
 }) => {
   if (shouldAnimate) {
     return (
       <motion.div
         initial={{ y: 100 }}
         animate={{ y: 0 }}
-        className="mx-8 my-4 flex items-start justify-end gap-6"
+        className={cn("mx-8 my-4 flex items-start justify-end gap-6", {
+          "justify-start": from === "FRIEND",
+        })}
       >
         {children}
       </motion.div>
     )
   } else {
     return (
-      <div className="mx-8 my-4 flex items-start justify-end gap-6">
+      <div
+        className={cn("mx-8 my-4 flex items-start justify-end gap-6", {
+          "justify-start": from === "FRIEND",
+        })}
+      >
         {children}
       </div>
     )
   }
+}
+
+function ChatTextMessage({ message }: { message: Message }) {
+  return <ChatText>{message.content}</ChatText>
+}
+
+function ChatImageMessage({ message }: { message: Message }) {
+  return <img alt="" src={message.content} width="300px" height="auto" />
 }
 
 function UserMessage({
@@ -135,9 +151,10 @@ function UserMessage({
 }) {
   const { image } = useUser()
   return (
-    <Wrapper shouldAnimate={message.shouldAnimate}>
+    <Wrapper from="ME" shouldAnimate={message.shouldAnimate}>
       <ChatWrapper from="ME">
-        <ChatText>{message.content}</ChatText>
+        {message.type === "text" && <ChatTextMessage message={message} />}
+        {message.type === "image" && <ChatImageMessage message={message} />}
       </ChatWrapper>
       <div className="flex flex-col items-center gap-1">
         <Avatar>
@@ -161,7 +178,7 @@ function FriendMessage({
   isLastMessage: boolean
 }) {
   return (
-    <Wrapper shouldAnimate={message.shouldAnimate}>
+    <Wrapper from="FRIEND" shouldAnimate={message.shouldAnimate}>
       <div className="flex flex-col items-center gap-1">
         <Avatar>
           <AvatarImage src={friendAvatarImage} alt="@shadcn" />
@@ -172,7 +189,8 @@ function FriendMessage({
         <ChatTime>{convertTimestampToTime(message.timestamp)}</ChatTime>
       </div>
       <ChatWrapper from="FRIEND">
-        <ChatText>{message.content}</ChatText>
+        {message.type === "text" && <ChatTextMessage message={message} />}
+        {message.type === "image" && <ChatImageMessage message={message} />}
       </ChatWrapper>
     </Wrapper>
   )

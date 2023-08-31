@@ -9,15 +9,13 @@ import { TRPCError } from "@trpc/server"
 export const userRouter = createTRPCRouter({
   getUserIdFromEmail: publicProcedure
     .input(z.object({ email: z.string() }))
-    .mutation(async ({ input }) => {
+    .query(async ({ input }) => {
       const result = await db
         .select()
         .from(users)
         .where(eq(users.email, input.email))
         .get()
-      return {
-        userId: result?.id ?? null,
-      }
+      return result?.id ?? null
     }),
   getFriendsByEmail: publicProcedure
     .input(

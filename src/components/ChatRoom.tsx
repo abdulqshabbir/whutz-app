@@ -11,12 +11,13 @@ import { useUser } from "@/hooks/useUser"
 import { trpc, type RouterInputs } from "@/utils/api"
 import { useAtom, useAtomValue } from "jotai"
 import { useRouter } from "next/router"
-import Pusher from "pusher-js"
-import { useEffect, useState } from "react"
+import Pusher, { type Channel } from "pusher-js"
+import { useEffect, useRef, useState } from "react"
 import { z } from "zod"
 import { ChatHistory } from "./ChatHistory"
 import { Input } from "./ui/InputField"
 import { Textarea } from "./ui/TextArea"
+import { GrAttachment } from "react-icons/gr"
 
 type SendMessageInput = RouterInputs["messages"]["send"]
 
@@ -59,7 +60,6 @@ export function ChatRoom() {
     })
     const pusherChannel = pusher.subscribe(channel)
     const callback = ({ data }: { data: Message[] }) => {
-      console.log("xxx ", data)
       const mappedMessages: Message[] = data.map((m, idx) => {
         if (idx === data.length - 1) {
           return {
@@ -87,9 +87,48 @@ export function ChatRoom() {
       messageSchema.parse(mappedMessages)
       setMessages(mappedMessages)
     }
+
+    function bindWithChunking(
+      channel: Channel,
+      event: string,
+      callback: ({ data }: { data: Message[] }) => void
+    ) {
     pusherChannel.bind("message", callback)
+      const events: Record<string, unknown> = {}
+      type ChunkedData = {
+        id: string
+        index: number
+        chunk: string
+        final: boolean
+      }
+      channel.bind("chunked-" + event, (data: ChunkedData) => {
+        if (!events.hasOwnProperty(data.id)) {
+          events[data.id] = { chunks: [], receivedFinal: false }
+        }
+        type EventChunks = {
+          chunks: string[]
+          receivedFinal: boolean
+        }
+        const ev = events[data.id] as EventChunks
+        ev.chunks[data.index] = data.chunk
+        if (data.final) ev.receivedFinal = true
+        if (
+          ev.receivedFinal &&
+          ev.chunks.length === Object.keys(ev.chunks).length
+        ) {
+          callback({
+            data: JSON.parse(ev.chunks.join("")) as unknown as Message[],
+          })
+          delete events[data.id]
+        }
+      })
+    }
+
+    bindWithChunking(pusherChannel, "message", callback)
+    // pusherChannel.bind("message", callback)
     return () => {
-      pusherChannel.unbind("message", callback)
+      // pusherChannel.unbind("message", callback)
+      pusherChannel.unbind("chunked-message", callback)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channel])
@@ -98,7 +137,7 @@ export function ChatRoom() {
     void router.push("/signup")
   }
 
-  function sendMesage({ ...input }: SendMessageInput) {
+  function sendMessage({ ...input }: SendMessageInput) {
     mutate({
       ...input,
     })
@@ -118,7 +157,7 @@ export function ChatRoom() {
       </div>
       <div className={`h-[15%]`}>
         <div className="m-2">
-          <ChatInput sendMesage={sendMesage} />
+          <ChatInput sendMessage={sendMessage} />
         </div>
       </div>
     </div>
@@ -126,15 +165,19 @@ export function ChatRoom() {
 }
 
 function ChatInput({
-  sendMesage,
+  sendMessage,
 }: {
-  sendMesage: (message: SendMessageInput) => void
+  sendMessage: (message: SendMessageInput) => void
 }) {
   const { email } = useUser()
   const [newMessage, setNewMessage] = useState("")
   const [friendEmail] = useAtom(friendEmailAtom)
   const [channel] = useAtom(channelAtom)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const presignedPostMutation = trpc.s3.createPreSignedPostUrl.useMutation()
+  const { data: userId } = trpc.user.getUserIdFromEmail.useQuery({
+    email: email ?? "",
+  })
 
   async function uploadToS3(file: File | undefined) {
     if (!file) return
@@ -158,8 +201,21 @@ function ChatInput({
       method: "POST",
       body: formData,
     })
-      .then(() => console.log("uploaded to S3!"))
-      .catch(console.error)
+      .then(() => {
+        if (email && userId) {
+          sendMessage({
+            fromEmail: email,
+            toEmail: friendEmail,
+            channel,
+            content: `${url}${userId}/${result.fileId}`,
+            type: "image",
+          })
+        }
+      })
+      .catch((e) => {
+        console.error(e)
+        return
+      })
   }
 
   return (
@@ -175,20 +231,36 @@ function ChatInput({
         onKeyUp={(e) => {
           if (e.key === "Enter") {
             if (email) {
-              sendMesage({
+              sendMessage({
                 fromEmail: email,
                 toEmail: friendEmail,
                 channel: channel,
                 content: newMessage.trimEnd(),
+                type: "text",
               })
               setNewMessage("")
             }
           }
         }}
       />
+      <GrAttachment
+        style={{
+          position: "absolute",
+          top: "8px",
+          right: "8px",
+          cursor: "pointer",
+        }}
+        onClick={() => {
+          fileInputRef.current?.click()
+        }}
+      />
       <Input
         type="file"
+        ref={fileInputRef}
         onChange={(e) => void uploadToS3(e.target.files?.[0])}
+        style={{
+          display: "none",
+        }}
       />
     </div>
   )
