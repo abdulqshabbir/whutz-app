@@ -169,7 +169,7 @@ export const pusherRouter = createTRPCRouter({
         pusher: Pusher,
         channel: string | string[],
         event: string,
-        data: Omit<Message, "shouldAnimage">
+        data: Array<Omit<Message, "shouldAnimate">>
       ) {
         const chunkSize = 4000
         const str = JSON.stringify(data)
