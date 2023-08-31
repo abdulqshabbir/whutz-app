@@ -4,6 +4,7 @@ import { userRouter } from "./routers/user"
 import { friendRouter } from "./routers/friend"
 import { pusherRouter } from "./routers/pusher"
 import { channelRouter } from "./routers/channel"
+import { s3Router } from "./routers/s3"
 
 /**
  * This is the primary router for your server.
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
   friend: friendRouter,
   messages: pusherRouter,
   channel: channelRouter,
+  s3: s3Router,
 })
 
 // export type definition of API

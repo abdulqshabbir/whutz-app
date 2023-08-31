@@ -17,6 +17,16 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "whutzapp.s3.ap-southeast-1.amazonaws.com",
+        pathname: "/**",
+        port: "",
+      },
+    ],
+  },
 }
 
 export default config
