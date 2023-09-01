@@ -17,6 +17,7 @@ export const userRouter = createTRPCRouter({
         .where(eq(users.email, input.email))
         .get()
       log.debug("userRouter.getUserIdFromEmail", { result })
+      console.log("userRouter.getUserIdFromEmail", { result })
       return result?.id ?? null
     }),
   getFriendsByEmail: publicProcedure
