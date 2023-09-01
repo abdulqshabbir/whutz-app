@@ -5,6 +5,7 @@ import { eq, inArray, sql } from "drizzle-orm"
 import { z } from "zod"
 import { getUserIdFromEmail } from "./pusher"
 import { TRPCError } from "@trpc/server"
+import { log } from "next-axiom"
 
 export const userRouter = createTRPCRouter({
   getUserIdFromEmail: publicProcedure
@@ -15,6 +16,7 @@ export const userRouter = createTRPCRouter({
         .from(users)
         .where(eq(users.email, input.email))
         .get()
+      log.debug("userRouter.getUserIdFromEmail", { result })
       return result?.id ?? null
     }),
   getFriendsByEmail: publicProcedure
