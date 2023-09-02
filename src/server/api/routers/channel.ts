@@ -5,6 +5,7 @@ import { TRPCError } from "@trpc/server"
 import { and, eq, or } from "drizzle-orm"
 import { z } from "zod"
 import { getUserIdFromEmail } from "./pusher"
+import { logger } from "@/utils/logger"
 
 export const channelRouter = createTRPCRouter({
   getChannelByUserAndFriendEmail: publicProcedure
@@ -41,11 +42,34 @@ export const channelRouter = createTRPCRouter({
         .get()
 
       if (!result) {
+        logger({
+          level: "error",
+          message:
+            "channelRouter.getChannelByUserAndFriendEmail: cannot not find channel.",
+          data: {
+            userEmail: input.userEmail,
+            friendEmail: input.friendEmail,
+          },
+        })
+      }
+
+      if (!result) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Could not find channel.",
         })
       }
+
+      logger({
+        level: "info",
+        message: "channelRouter.getChannelByUserAndFriendEmail: found channel.",
+        data: {
+          userEmail: input.userEmail,
+          friendEmail: input.friendEmail,
+          channelId: result.channelId,
+        },
+      })
+
       return result.channelId
     }),
 })
