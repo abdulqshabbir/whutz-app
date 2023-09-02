@@ -1,12 +1,17 @@
 import { env } from "@/env.mjs"
 import { db } from "@/lib/db"
 import { messages, users } from "@/lib/db/schema"
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc"
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc"
 import { TRPCError } from "@trpc/server"
 import { asc, eq } from "drizzle-orm"
 import Pusher from "pusher"
 import { z } from "zod"
 import { type Message } from "@/components/ChatHistory"
+import { logger } from "@/utils/logger"
 
 export const pusher = new Pusher({
   appId: env.PUSHER_APP_ID,
@@ -33,15 +38,18 @@ export async function getUserIdFromEmail(email: string) {
 }
 
 export const messagesRouter = createTRPCRouter({
-  getByChannel: publicProcedure
+  getByChannel: protectedProcedure
     .input(
       z.object({
-        channel: z.string(),
+        channel: z.string().min(1),
       })
     )
     .query(async ({ input, ctx }) => {
       if (!ctx.session?.user?.email) {
-        return []
+        throw new TRPCError({
+          message: "User not logged in",
+          code: "UNAUTHORIZED",
+        })
       }
       const channelId = input.channel
       const result = await db
@@ -58,6 +66,13 @@ export const messagesRouter = createTRPCRouter({
         .orderBy(asc(messages.timestamp))
         .all()
 
+      logger({
+        message: "messagesRouter.getByChannel: get messages",
+        data: result,
+        email: ctx.session.user.email,
+        level: "info",
+      })
+
       const senderEmailAndIds = await db
         .selectDistinct({
           senderId: messages.sender,
@@ -66,6 +81,13 @@ export const messagesRouter = createTRPCRouter({
         .from(messages)
         .innerJoin(users, eq(messages.sender, users.id))
         .all()
+
+      logger({
+        message: "messagesRouter.getByChannel: get senderEmailAndIds",
+        data: senderEmailAndIds,
+        email: ctx.session.user.email,
+        level: "info",
+      })
 
       const recieverEmailAndIds = await db
         .selectDistinct({
@@ -76,6 +98,13 @@ export const messagesRouter = createTRPCRouter({
         .innerJoin(users, eq(messages.reciever, users.id))
         .all()
 
+      logger({
+        message: "messagesRouter.getByChannel: get recieverEmailAndIds",
+        data: recieverEmailAndIds,
+        email: ctx.session.user.email,
+        level: "info",
+      })
+
       const returned = result.map((m) => {
         return {
           ...m,
@@ -85,6 +114,13 @@ export const messagesRouter = createTRPCRouter({
             ?.recieverEmail as unknown as string,
           id: m.id,
         }
+      })
+
+      logger({
+        message: "messagesRouter.getByChannel: returned",
+        data: returned,
+        email: ctx.session.user.email,
+        level: "info",
       })
 
       return returned
@@ -134,6 +170,13 @@ export const messagesRouter = createTRPCRouter({
         .returning()
         .get()
 
+      logger({
+        message: "messagesRouter.send: newMessage",
+        data: newMessage,
+        email: ctx.session.user.email,
+        level: "info",
+      })
+
       const allMessagesForChannel = await db
         .select({
           sender: messages.sender,
@@ -147,6 +190,13 @@ export const messagesRouter = createTRPCRouter({
         .where(eq(messages.channel, input.channel))
         .all()
 
+      logger({
+        message: "messagesRouter.send: allMessagesForChannel",
+        data: allMessagesForChannel,
+        email: ctx.session.user.email,
+        level: "info",
+      })
+
       const senderEmailAndIds = await db
         .selectDistinct({
           senderId: messages.sender,
@@ -155,6 +205,13 @@ export const messagesRouter = createTRPCRouter({
         .from(messages)
         .innerJoin(users, eq(messages.sender, users.id))
         .all()
+
+      logger({
+        message: "messagesRouter.send: senderEmailAndIds",
+        data: senderEmailAndIds,
+        email: ctx.session.user.email,
+        level: "info",
+      })
 
       const recieverEmailAndIds = await db
         .selectDistinct({
@@ -165,22 +222,60 @@ export const messagesRouter = createTRPCRouter({
         .innerJoin(users, eq(messages.reciever, users.id))
         .all()
 
+      logger({
+        message: "messagesRouter.send: recieverEmailAndIds",
+        data: recieverEmailAndIds,
+        email: ctx.session.user.email,
+        level: "info",
+      })
+
       async function triggerChunked(
         pusher: Pusher,
         channel: string | string[],
         event: string,
         data: Array<Omit<Message, "shouldAnimate">>
       ) {
+        logger({
+          message: "messagesRouter.send: triggerChunked called",
+          data: {
+            channel,
+            event,
+            data,
+          },
+          email: ctx.session?.user?.email,
+          level: "info",
+        })
         const chunkSize = 4000
         const str = JSON.stringify(data)
         const msgId = Math.random() + ""
         for (let i = 0; i * chunkSize < str.length; i++) {
-          await pusher.trigger(channel, "chunked-" + event, {
-            id: msgId,
-            index: i,
-            chunk: str.substr(i * chunkSize, chunkSize),
-            final: chunkSize * (i + 1) >= str.length,
-          })
+          try {
+            await pusher.trigger(channel, "chunked-" + event, {
+              id: msgId,
+              index: i,
+              chunk: str.substr(i * chunkSize, chunkSize),
+              final: chunkSize * (i + 1) >= str.length,
+            })
+
+            logger({
+              message: "messagesRouter.send: triggerChunked",
+              data: {
+                id: msgId,
+                index: i,
+                chunk: str.substr(i * chunkSize, chunkSize),
+                final: chunkSize * (i + 1) >= str.length,
+              },
+              email: ctx.session?.user?.email,
+              level: "info",
+            })
+          } catch (e) {
+            logger({
+              message: "messagesRouter.send: triggerChunked error",
+              data: e as object,
+              email: ctx.session?.user?.email,
+              level: "error",
+            })
+          }
         }
       }
 
