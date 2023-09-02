@@ -18,6 +18,7 @@ import { ChatHistory } from "./ChatHistory"
 import { Input } from "./ui/InputField"
 import { Textarea } from "./ui/TextArea"
 import { GrAttachment } from "react-icons/gr"
+import { usePusher } from "@/hooks/usePusher"
 
 type SendMessageInput = RouterInputs["messages"]["send"]
 
@@ -29,6 +30,11 @@ export function ChatRoom() {
   const [messages, setMessages] = useAtom(messagesAtom)
   const channel = useAtomValue(channelAtom)
   const lastMessageRef = useAtomValue(lastMessageRefAtom)
+  const pusher = usePusher()
+
+  if (!pusher) {
+    throw new Error("usePusher should be used inside of Pusher Provider")
+  }
 
   useEffect(() => {
     lastMessageRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -55,9 +61,6 @@ export function ChatRoom() {
   }, [isMessagesLoading, lastMessageRef])
 
   useEffect(() => {
-    const pusher = new Pusher(env.NEXT_PUBLIC_PUSHER_KEY, {
-      cluster: env.NEXT_PUBLIC_PUSHER_CLUSTER,
-    })
     const pusherChannel = pusher.subscribe(channel)
     const callback = ({ data }: { data: Message[] }) => {
       const mappedMessages: Message[] = data.map((m, idx) => {
@@ -93,7 +96,7 @@ export function ChatRoom() {
       event: string,
       callback: ({ data }: { data: Message[] }) => void
     ) {
-    pusherChannel.bind("message", callback)
+      pusherChannel.bind("message", callback)
       const events: Record<string, unknown> = {}
       type ChunkedData = {
         id: string
