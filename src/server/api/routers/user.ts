@@ -1,23 +1,41 @@
 import { db } from "@/lib/db"
 import { channels, userFriends, users } from "@/lib/db/schema"
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc"
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc"
 import { eq, inArray, sql } from "drizzle-orm"
 import { z } from "zod"
 import { getUserIdFromEmail } from "./pusher"
 import { TRPCError } from "@trpc/server"
-import { log } from "next-axiom"
+import { logger } from "@/utils/logger"
 
 export const userRouter = createTRPCRouter({
-  getUserIdFromEmail: publicProcedure
-    .input(z.object({ email: z.string() }))
-    .query(async ({ input }) => {
+  getUserIdFromEmail: protectedProcedure
+    .input(z.object({ email: z.string().email() }))
+    .query(async ({ input, ctx }) => {
       const result = await db
         .select()
         .from(users)
         .where(eq(users.email, input.email))
         .get()
-      log.debug("userRouter.getUserIdFromEmail", { result })
-      console.log("userRouter.getUserIdFromEmail", { result })
+
+      if (!result) {
+        logger({
+          message: "uuserRotuer.getUserIdFromEmail",
+          data: result,
+          level: "error",
+          email: ctx.session.user.email,
+        })
+      }
+
+      logger({
+        message: "userRotuer.getUserIdFromEmail",
+        data: result,
+        email: ctx.session.user.email,
+        level: "info",
+      })
       return result?.id ?? null
     }),
   getFriendsByEmail: publicProcedure
@@ -26,7 +44,7 @@ export const userRouter = createTRPCRouter({
         email: z.string().email(),
       })
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const userId = await getUserIdFromEmail(input.email)
       if (!userId) {
         throw new TRPCError({
@@ -50,9 +68,16 @@ export const userRouter = createTRPCRouter({
         )
         .all()
 
+      logger({
+        message: "userRouter.getFriendsByEmail",
+        data: friends,
+        email: ctx.session?.user.email,
+        level: "info",
+      })
+
       return friends
     }),
-  sendFriendRequest: publicProcedure
+  sendFriendRequest: protectedProcedure
     .input(z.object({ email: z.string() }))
     .mutation(async ({ input, ctx }) => {
       if (!ctx.session?.user.email) {
@@ -87,8 +112,23 @@ export const userRouter = createTRPCRouter({
         .returning()
         .get()
 
+      if (channel) {
+        logger({
+          message: "userRouter.sendFriendRequest channel created!",
+          data: channel,
+          email: ctx.session.user.email,
+          level: "info",
+        })
+      } else {
+        logger({
+          message: "userRouter.sendFriendRequest channel creation failed",
+          data: channel,
+          email: ctx.session.user.email,
+          level: "error",
+        })
+      }
       // create a new user-friend-chanel link
-      await db
+      const userFriendLink = await db
         .insert(userFriends)
         .values([
           {
@@ -104,6 +144,23 @@ export const userRouter = createTRPCRouter({
         ])
         .returning()
         .get()
+
+      if (userFriendLink) {
+        logger({
+          message: "userRouter.sendFriendRequest userFriendLink created!",
+          data: userFriendLink,
+          email: ctx.session.user.email,
+          level: "info",
+        })
+      } else {
+        logger({
+          message:
+            "userRouter.sendFriendRequest userFriendLink creation failed",
+          data: userFriendLink,
+          email: ctx.session.user.email,
+          level: "error",
+        })
+      }
 
       // return ok
       return {

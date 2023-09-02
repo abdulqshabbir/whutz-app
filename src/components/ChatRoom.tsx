@@ -177,9 +177,15 @@ function ChatInput({
   const [channel] = useAtom(channelAtom)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const presignedPostMutation = trpc.s3.createPreSignedPostUrl.useMutation()
-  const { data: userId } = trpc.user.getUserIdFromEmail.useQuery({
-    email: email ?? "",
-  })
+  const { data: userId } = trpc.user.getUserIdFromEmail.useQuery(
+    {
+      email: email ?? "",
+    },
+    {
+      enabled: Boolean(email),
+      refetchOnWindowFocus: false,
+    }
+  )
 
   async function uploadToS3(file: File | undefined) {
     if (!file) return

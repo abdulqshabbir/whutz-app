@@ -32,7 +32,7 @@ export async function getUserIdFromEmail(email: string) {
   return user?.id ?? null
 }
 
-export const pusherRouter = createTRPCRouter({
+export const messagesRouter = createTRPCRouter({
   getByChannel: publicProcedure
     .input(
       z.object({
