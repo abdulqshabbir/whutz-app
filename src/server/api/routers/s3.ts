@@ -55,6 +55,7 @@ export const s3Router = createTRPCRouter({
           url,
           fields,
         },
+        email: ctx.session.user.email,
       })
 
       return {
@@ -72,6 +73,7 @@ export const s3Router = createTRPCRouter({
           fileId,
           preSignedPostOptions,
         },
+        email: ctx.session.user.email,
       })
       return {
         ok: 0,

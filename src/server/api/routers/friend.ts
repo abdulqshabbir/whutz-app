@@ -12,7 +12,7 @@ export const friendRouter = createTRPCRouter({
         friendEmail: z.string().min(1).email(),
       })
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const result = await db
         .select({
           image: users.image,
@@ -26,12 +26,14 @@ export const friendRouter = createTRPCRouter({
           message: "friendRouter.getProfileInfo friend info not found",
           data: result,
           level: "error",
+          email: ctx.session?.user.email,
         })
       } else {
         logger({
           message: "friendRouter.getProfileInfo",
           data: result,
           level: "info",
+          email: ctx.session?.user.email,
         })
       }
       return result

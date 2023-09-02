@@ -15,7 +15,7 @@ export const channelRouter = createTRPCRouter({
         friendEmail: z.string(),
       })
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const firstId = await getUserIdFromEmail(input.userEmail)
       const secondId = await getUserIdFromEmail(input.friendEmail)
       if (!firstId || !secondId) {
@@ -50,6 +50,7 @@ export const channelRouter = createTRPCRouter({
             userEmail: input.userEmail,
             friendEmail: input.friendEmail,
           },
+          email: ctx.session?.user.email,
         })
       }
 
@@ -68,6 +69,7 @@ export const channelRouter = createTRPCRouter({
           friendEmail: input.friendEmail,
           channelId: result.channelId,
         },
+        email: ctx.session?.user.email,
       })
 
       return result.channelId

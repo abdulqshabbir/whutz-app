@@ -7,14 +7,14 @@ function logger({
   message: string
   data: object | null | undefined
   level: "info" | "warn" | "error"
-  email?: string | null
+  email: string | null | undefined
 }) {
   if (!level || level === "info") {
-    console.log(message, data, email)
+    console.log(message, data, `\nUser email: ${email}`)
   } else if (level === "warn") {
-    console.warn(message, data, email)
+    console.warn(message, data, `\nUser email: ${email}`)
   } else if (level === "error") {
-    console.error(message, data, email)
+    console.error(message, data, `\nUser email: ${email}`)
   }
 }
 
