@@ -5,6 +5,7 @@ import { type PresignedPostOptions } from "@aws-sdk/s3-presigned-post"
 import { getUserIdFromEmail } from "./pusher"
 import { TRPCError } from "@trpc/server"
 import { env } from "@/env.mjs"
+import { logger } from "@/utils/logger"
 
 const client = new S3Client({
   region: "ap-southeast-1",
@@ -44,6 +45,18 @@ export const s3Router = createTRPCRouter({
         ...preSignedPostOptions,
         Expires: 3600,
       })
+
+      logger({
+        level: "info",
+        message: "s3Router.createPreSignedPostUrl: success",
+        data: {
+          userId,
+          fileId,
+          url,
+          fields,
+        },
+      })
+
       return {
         ok: 1,
         presignedFields: fields,
@@ -51,7 +64,15 @@ export const s3Router = createTRPCRouter({
         fileId,
       }
     } catch (e) {
-      console.error("pre-signed error: ", e)
+      logger({
+        level: "error",
+        message: "s3Router.createPreSignedPostUrl: error",
+        data: {
+          userId,
+          fileId,
+          preSignedPostOptions,
+        },
+      })
       return {
         ok: 0,
         error: e,
