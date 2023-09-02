@@ -5,20 +5,19 @@ import {
   messagesAtom,
 } from "@/atoms"
 import { type Message } from "@/components/ChatHistory"
-import { env } from "@/env.mjs"
 import { useIsClient } from "@/hooks/useIsClient"
+import { usePusher } from "@/hooks/usePusher"
 import { useUser } from "@/hooks/useUser"
 import { trpc, type RouterInputs } from "@/utils/api"
 import { useAtom, useAtomValue } from "jotai"
 import { useRouter } from "next/router"
-import Pusher, { type Channel } from "pusher-js"
+import { type Channel } from "pusher-js"
 import { useEffect, useRef, useState } from "react"
+import { GrAttachment } from "react-icons/gr"
 import { z } from "zod"
 import { ChatHistory } from "./ChatHistory"
 import { Input } from "./ui/InputField"
 import { Textarea } from "./ui/TextArea"
-import { GrAttachment } from "react-icons/gr"
-import { usePusher } from "@/hooks/usePusher"
 
 type SendMessageInput = RouterInputs["messages"]["send"]
 

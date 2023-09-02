@@ -1,4 +1,4 @@
-import { channelAtom, friendEmailAtom, lastMessageRefAtom } from "@/atoms"
+import { friendEmailAtom, lastMessageRefAtom } from "@/atoms"
 import { useUser } from "@/hooks/useUser"
 import { cn } from "@/lib/utils"
 import { trpc } from "@/utils/api"
@@ -140,6 +140,7 @@ function ChatTextMessage({ message }: { message: Message }) {
 }
 
 function ChatImageMessage({ message }: { message: Message }) {
+  // eslint-disable-next-line @next/next/no-img-element
   return <img alt="" src={message.content} width="300px" height="auto" />
 }
 
