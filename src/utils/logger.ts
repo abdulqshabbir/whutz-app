@@ -9,6 +9,8 @@ function logger({
   level: "info" | "warn" | "error"
   email: string | null | undefined
 }) {
+  if (process.env.NODE_ENV === "test") return
+  if (process.env.NODE_ENV === "development") return
   if (!level || level === "info") {
     console.log(message, data, `\nUser email: ${email}`)
   } else if (level === "warn") {
