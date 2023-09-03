@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { friendEmailAtom, lastMessageRefAtom } from "@/atoms"
 import { useUser } from "@/hooks/useUser"
 import { cn } from "@/lib/utils"
@@ -140,11 +141,21 @@ function ChatTextMessage({ message }: { message: Message }) {
 }
 
 function ChatImageMessage({ message }: { message: Message }) {
-  // eslint-disable-next-line @next/next/no-img-element
   return (
     <a href={message.content} target="_blank">
       <img alt="" src={message.content} width="300px" height="auto" />
     </a>
+  )
+}
+
+function ChatPdfMessage({ message }: { message: Message }) {
+  return (
+    <object
+      data={message.content}
+      type="application/pdf"
+      width="300px"
+      height="500px"
+    />
   )
 }
 
@@ -160,6 +171,7 @@ function UserMessage({
       <ChatWrapper from="ME">
         {message.type === "text" && <ChatTextMessage message={message} />}
         {message.type === "image" && <ChatImageMessage message={message} />}
+        {message.type === "pdf" && <ChatPdfMessage message={message} />}
       </ChatWrapper>
       <div className="flex flex-col items-center gap-1">
         <Avatar>
@@ -196,6 +208,7 @@ function FriendMessage({
       <ChatWrapper from="FRIEND">
         {message.type === "text" && <ChatTextMessage message={message} />}
         {message.type === "image" && <ChatImageMessage message={message} />}
+        {message.type === "pdf" && <ChatPdfMessage message={message} />}
       </ChatWrapper>
     </Wrapper>
   )
