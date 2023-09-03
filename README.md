@@ -2,6 +2,16 @@
 
 This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
 
+## Todo
+
+- [ ] Refactor all api calls behind custom hooks
+- [ ] handle error/success states of api calls with toast notifications
+- [ ] friend request once sent should have a pending state (either sent or yet to accept) and linking should only happen once friend accepts
+- [ ] support sending of file/pdf/audio/video formats
+- [ ] add e2e tests using playright or cypress
+- [ ] make it mobile responsive
+- [ ] add ability to create threads/channels that are public and users can subscribe to (will require changes at db level)
+
 ## How to run this project locally
 
 1. `git clone https://github.com/abdulqshabbir/whutz-app.git` (clone repo)
@@ -13,6 +23,7 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 7. Open a new terminal window and run `yarn studio` and click the link in the terminal to open up a GUI for interacting with the database
 
 Other optional commands:
+
 - `yarn lint` to check for linting errors
 - `yarn prettier` to format code across entire project
 - `yarn pull` to pull in database changes into our drizzle schema (which is used for our db client in the application)
