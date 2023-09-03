@@ -196,6 +196,7 @@ function ChatInput({
 
     const fields = {
       ...result.presignedFields,
+      "Content-Disposition": "inline",
       "Content-Type": file.type,
       file,
     }
