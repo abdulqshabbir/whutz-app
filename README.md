@@ -7,7 +7,7 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 - [ ] Refactor all api calls behind custom hooks
 - [ ] handle error/success states of api calls with toast notifications
 - [ ] friend request once sent should have a pending state (either sent or yet to accept) and linking should only happen once friend accepts
-- [ ] support sending of file/pdf/audio/video formats
+- [ ] support sending of file/pdf/audio/video formats (frontend and backend)
 - [ ] add e2e tests using playright or cypress
 - [ ] make it mobile responsive
 - [ ] add ability to create threads/channels that are public and users can subscribe to (will require changes at db level)

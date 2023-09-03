@@ -37,7 +37,7 @@ export const s3Router = createTRPCRouter({
       Fields: {
         acl: "public-read",
       },
-      Conditions: [["starts-with", "Content-Type", ""]],
+      Conditions: [["starts-with", "$Content-Type", ""]],
     }
 
     try {

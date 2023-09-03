@@ -196,8 +196,8 @@ function ChatInput({
 
     const fields = {
       ...result.presignedFields,
-      file,
       "Content-Type": file.type,
+      file,
     }
     const url = result.presignedUrl
 
