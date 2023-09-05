@@ -6,10 +6,12 @@ import { trpc } from "@/utils/api"
 import { format, fromUnixTime } from "date-fns"
 import { motion } from "framer-motion"
 import { useAtomValue } from "jotai"
-import React from "react"
+import React, { useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar"
 import { ChatHistorySkeleton } from "./ui/Skeleton"
 import { P } from "./ui/typography/P"
+import { BsEmojiSunglasses } from "react-icons/bs"
+import { BsReply } from "react-icons/bs"
 
 export type Message = {
   id: number
@@ -76,8 +78,8 @@ function ChatWrapper({
   return (
     <div
       className={cn("min-h-[40px] max-w-fit rounded-md bg-gray-300 p-2", {
-        "bg-gray-200": from === "ME",
-        "bg-blue-100": from === "FRIEND",
+        "bg-gray-300": from === "ME",
+        "bg-purple-300": from === "FRIEND",
       })}
     >
       {children}
@@ -102,6 +104,32 @@ function convertTimestampToTime(timestamp: number) {
   }
 }
 
+function ActionsBar({ from, show }: { from: "FRIEND" | "ME"; show: boolean }) {
+  const [showEmojiesDropdown, setShowEmojiesDropdown] = useState(false)
+  if (!show) return null
+  return (
+    <div
+      className={cn(
+        "absolute top-[-8px] flex cursor-pointer rounded-md bg-slate-300",
+        {
+          "left-2": from === "ME",
+          "right-2": from === "FRIEND",
+        }
+      )}
+    >
+      <div
+        className="rounded-md p-2 hover:bg-slate-400 "
+        onClick={() => setShowEmojiesDropdown(!showEmojiesDropdown)}
+      >
+        <BsEmojiSunglasses />
+      </div>
+      <div className="rounded-md p-2 hover:bg-slate-400">
+        <BsReply />
+      </div>
+    </div>
+  )
+}
+
 const Wrapper = ({
   children,
   shouldAnimate,
@@ -111,25 +139,36 @@ const Wrapper = ({
   shouldAnimate: boolean
   from: "FRIEND" | "ME"
 }) => {
+  const [showActions, setShowActions] = useState(false)
+  const baseStyles =
+    "mx-8 my-4 flex items-start justify-end gap-6 rounded-md p-2 relative"
   if (shouldAnimate) {
     return (
       <motion.div
         initial={{ y: 100 }}
         animate={{ y: 0 }}
-        className={cn("mx-8 my-4 flex items-start justify-end gap-6", {
+        className={cn(baseStyles, {
           "justify-start": from === "FRIEND",
+          "bg-slate-200": showActions,
         })}
+        onMouseEnter={() => setShowActions(true)}
+        onMouseLeave={() => setShowActions(false)}
       >
+        <ActionsBar show={showActions} from={from} />
         {children}
       </motion.div>
     )
   } else {
     return (
       <div
-        className={cn("mx-8 my-4 flex items-start justify-end gap-6", {
+        className={cn(baseStyles, {
           "justify-start": from === "FRIEND",
+          "bg-slate-200": showActions,
         })}
+        onMouseEnter={() => setShowActions(true)}
+        onMouseLeave={() => setShowActions(false)}
       >
+        <ActionsBar show={showActions} from={from} />
         {children}
       </div>
     )
