@@ -7,11 +7,10 @@ import { format, fromUnixTime } from "date-fns"
 import { motion } from "framer-motion"
 import { useAtomValue } from "jotai"
 import React, { useState } from "react"
+import { BsEmojiSunglasses, BsReply } from "react-icons/bs"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar"
 import { ChatHistorySkeleton } from "./ui/Skeleton"
 import { P } from "./ui/typography/P"
-import { BsEmojiSunglasses } from "react-icons/bs"
-import { BsReply } from "react-icons/bs"
 
 export type Message = {
   id: number
@@ -121,11 +120,57 @@ function ActionsBar({ from, show }: { from: "FRIEND" | "ME"; show: boolean }) {
         className="rounded-md p-2 hover:bg-slate-400 "
         onClick={() => setShowEmojiesDropdown(!showEmojiesDropdown)}
       >
-        <BsEmojiSunglasses />
+        <EmojiesDropdown />
       </div>
       <div className="rounded-md p-2 hover:bg-slate-400">
         <BsReply />
       </div>
+    </div>
+  )
+}
+
+function EmojiesDropdown() {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const emojies = [
+    {
+      path: "/assets/emojies/thumbs_up.png",
+      text: "thumbsup",
+    },
+    {
+      path: "/assets/emojies/tears_of_joy.png",
+      text: "tears_of_joy",
+    },
+    {
+      path: "/assets/emojies/sunglasses.png",
+      text: "cool",
+    },
+    {
+      path: "/assets/emojies/fear.png",
+      text: "feat",
+    },
+    {
+      path: "/assets/emojies/eyes_heart.png",
+      text: "eyes heart",
+    },
+  ]
+  return (
+    <div className="relative cursor-pointer">
+      <BsEmojiSunglasses onClick={() => setIsDropdownOpen((prev) => !prev)} />
+      {isDropdownOpen && (
+        <div className="absolute left-[-6px] top-8 z-10 flex w-48 flex-col gap-4 rounded-md bg-slate-500 px-2 py-4">
+          {emojies.map((e) => {
+            return (
+              <div
+                key={e.text}
+                className="flex items-center gap-2 font-bold text-white"
+              >
+                <img width="24px" height="24px" src={e.path} alt="" />
+                <p>{e.text}</p>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
