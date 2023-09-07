@@ -1,0 +1,29 @@
+{
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "node_modules": true,
+    ".next": true,
+    ".github": true,
+    "drizzle": true,
+    ".env.example": true,
+    ".eslintrc.cjs": true,
+    ".swcrc": true,
+    "components.json": true,
+    "next-env.d.ts": true,
+    "next.config.mjs": true,
+    "postcss.config.cjs": true,
+    "prettier.config.cjs": true,
+    "README.md": true,
+    "tailwind.config.js": true,
+    "tailwind.config.ts": true,
+    "tsconfig.json": true,
+    "tsconfig.tsbuildinfo": true,
+    "yarn.lock": true,
+    ".gitignore:": true
+  }
+}

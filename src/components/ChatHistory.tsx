@@ -8,6 +8,7 @@ import { motion } from "framer-motion"
 import { useAtomValue } from "jotai"
 import React, { useState } from "react"
 import { BsEmojiSunglasses, BsReply } from "react-icons/bs"
+import { type RouterInputs } from "../utils/api"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar"
 import { ChatHistorySkeleton } from "./ui/Skeleton"
 import { P } from "./ui/typography/P"
@@ -20,6 +21,7 @@ export type Message = {
   type: string
   content: string
   shouldAnimate: boolean
+  emojies: string | null
 }
 
 const ChatHistory = ({
@@ -103,7 +105,15 @@ function convertTimestampToTime(timestamp: number) {
   }
 }
 
-function ActionsBar({ from, show }: { from: "FRIEND" | "ME"; show: boolean }) {
+function ActionsBar({
+  from,
+  show,
+  messageId,
+}: {
+  from: "FRIEND" | "ME"
+  show: boolean
+  messageId: number
+}) {
   const [showEmojiesDropdown, setShowEmojiesDropdown] = useState(false)
   if (!show) return null
   return (
@@ -120,7 +130,7 @@ function ActionsBar({ from, show }: { from: "FRIEND" | "ME"; show: boolean }) {
         className="rounded-md p-2 hover:bg-slate-400 "
         onClick={() => setShowEmojiesDropdown(!showEmojiesDropdown)}
       >
-        <EmojiesDropdown />
+        <EmojiesDropdown messageId={messageId} />
       </div>
       <div className="rounded-md p-2 hover:bg-slate-400">
         <BsReply />
@@ -129,28 +139,38 @@ function ActionsBar({ from, show }: { from: "FRIEND" | "ME"; show: boolean }) {
   )
 }
 
-function EmojiesDropdown() {
+function EmojiesDropdown({ messageId }: { messageId: number }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const emojies = [
+  const utils = trpc.useContext()
+  const { mutate: reactWithEmoji } = trpc.messages.reactWithEmoji.useMutation({
+    onMutate: () => {
+      setIsDropdownOpen(false)
+    },
+    onSuccess: () => {
+      void utils.messages.getByChannel.invalidate()
+    },
+  })
+  type EmojiType = RouterInputs["messages"]["reactWithEmoji"]["emoji"]
+  const emojies: Array<{ path: string; value: EmojiType }> = [
     {
       path: "/assets/emojies/thumbs_up.png",
-      text: "thumbsup",
+      value: "thumbs_up",
     },
     {
       path: "/assets/emojies/tears_of_joy.png",
-      text: "tears_of_joy",
+      value: "tears_of_joy",
     },
     {
       path: "/assets/emojies/sunglasses.png",
-      text: "cool",
+      value: "cool",
     },
     {
       path: "/assets/emojies/fear.png",
-      text: "feat",
+      value: "fear",
     },
     {
       path: "/assets/emojies/eyes_heart.png",
-      text: "eyes heart",
+      value: "eyes_heart",
     },
   ]
   return (
@@ -161,11 +181,17 @@ function EmojiesDropdown() {
           {emojies.map((e) => {
             return (
               <div
-                key={e.text}
+                key={e.value}
                 className="flex items-center gap-2 font-bold text-white"
+                onClick={() => {
+                  reactWithEmoji({
+                    emoji: e.value,
+                    messageId,
+                  })
+                }}
               >
                 <img width="24px" height="24px" src={e.path} alt="" />
-                <p>{e.text}</p>
+                <p>{e.value}</p>
               </div>
             )
           })}
@@ -179,10 +205,12 @@ const Wrapper = ({
   children,
   shouldAnimate,
   from,
+  messageId,
 }: {
   children: React.ReactNode
   shouldAnimate: boolean
   from: "FRIEND" | "ME"
+  messageId: number
 }) => {
   const [showActions, setShowActions] = useState(false)
   const baseStyles =
@@ -199,7 +227,7 @@ const Wrapper = ({
         onMouseEnter={() => setShowActions(true)}
         onMouseLeave={() => setShowActions(false)}
       >
-        <ActionsBar show={showActions} from={from} />
+        <ActionsBar show={showActions} from={from} messageId={messageId} />
         {children}
       </motion.div>
     )
@@ -213,7 +241,7 @@ const Wrapper = ({
         onMouseEnter={() => setShowActions(true)}
         onMouseLeave={() => setShowActions(false)}
       >
-        <ActionsBar show={showActions} from={from} />
+        <ActionsBar show={showActions} from={from} messageId={messageId} />
         {children}
       </div>
     )
@@ -251,12 +279,21 @@ function UserMessage({
 }) {
   const { image } = useUser()
   return (
-    <Wrapper from="ME" shouldAnimate={message.shouldAnimate}>
-      <ChatWrapper from="ME">
-        {message.type === "text" && <ChatTextMessage message={message} />}
-        {message.type === "image" && <ChatImageMessage message={message} />}
-        {message.type === "pdf" && <ChatPdfMessage message={message} />}
-      </ChatWrapper>
+    <Wrapper
+      messageId={message.id}
+      from="ME"
+      shouldAnimate={message.shouldAnimate}
+    >
+      <div className="flex flex-col items-end">
+        <ChatWrapper from="ME">
+          {message.type === "text" && <ChatTextMessage message={message} />}
+          {message.type === "image" && <ChatImageMessage message={message} />}
+          {message.type === "pdf" && <ChatPdfMessage message={message} />}
+        </ChatWrapper>
+        <div className="flex gap-2">
+          <MessageEmojies emojies={message.emojies} messageId={message.id} />
+        </div>
+      </div>
       <div className="flex flex-col items-center gap-1">
         <Avatar>
           <AvatarImage src={image ?? undefined} alt="@shadcn" />
@@ -266,6 +303,27 @@ function UserMessage({
       </div>
     </Wrapper>
   )
+}
+
+function MessageEmojies({
+  emojies,
+  messageId,
+}: {
+  emojies: string | null
+  messageId: number
+}) {
+  if (!emojies) return null
+
+  const emojiesArray = emojies.split(",")
+  return emojiesArray.map((emoji) => (
+    <img
+      key={`${emoji}-${messageId}`}
+      src={`/assets/emojies/${emoji}.png`}
+      alt=""
+      width="25px"
+      className="my-1 rounded-md bg-amber-800 p-1"
+    />
+  ))
 }
 
 function FriendMessage({
@@ -279,7 +337,11 @@ function FriendMessage({
   isLastMessage: boolean
 }) {
   return (
-    <Wrapper from="FRIEND" shouldAnimate={message.shouldAnimate}>
+    <Wrapper
+      messageId={message.id}
+      from="FRIEND"
+      shouldAnimate={message.shouldAnimate}
+    >
       <div className="flex flex-col items-center gap-1">
         <Avatar>
           <AvatarImage src={friendAvatarImage} alt="@shadcn" />
@@ -289,11 +351,16 @@ function FriendMessage({
         </Avatar>
         <ChatTime>{convertTimestampToTime(message.timestamp)}</ChatTime>
       </div>
-      <ChatWrapper from="FRIEND">
-        {message.type === "text" && <ChatTextMessage message={message} />}
-        {message.type === "image" && <ChatImageMessage message={message} />}
-        {message.type === "pdf" && <ChatPdfMessage message={message} />}
-      </ChatWrapper>
+      <div className="flex flex-col items-start">
+        <ChatWrapper from="FRIEND">
+          {message.type === "text" && <ChatTextMessage message={message} />}
+          {message.type === "image" && <ChatImageMessage message={message} />}
+          {message.type === "pdf" && <ChatPdfMessage message={message} />}
+        </ChatWrapper>
+        <div className="flex gap-2">
+          <MessageEmojies emojies={message.emojies} messageId={message.id} />
+        </div>
+      </div>
     </Wrapper>
   )
 }

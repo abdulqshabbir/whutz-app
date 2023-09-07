@@ -105,3 +105,17 @@ export const messages = sqliteTable("messages", {
 export const channels = sqliteTable("channels", {
   id: text("id").primaryKey().notNull(),
 })
+export const messageEmojies = sqliteTable(
+  "messageEmojies",
+  {
+    messageId: integer("messageId")
+      .notNull()
+      .references(() => messages.id, { onDelete: "cascade" }),
+    emoji: text("emoji").notNull(),
+  },
+  (table) => {
+    return {
+      pk0: primaryKey(table.emoji, table.messageId),
+    }
+  }
+)

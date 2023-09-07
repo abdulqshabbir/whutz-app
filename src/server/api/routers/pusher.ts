@@ -1,17 +1,17 @@
+import { type Message } from "@/components/ChatHistory"
 import { env } from "@/env.mjs"
 import { db } from "@/lib/db"
-import { messages, users } from "@/lib/db/schema"
+import { messageEmojies, messages, users } from "@/lib/db/schema"
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc"
+import { logger } from "@/utils/logger"
 import { TRPCError } from "@trpc/server"
-import { asc, eq } from "drizzle-orm"
+import { asc, eq, sql } from "drizzle-orm"
 import Pusher from "pusher"
 import { z } from "zod"
-import { type Message } from "@/components/ChatHistory"
-import { logger } from "@/utils/logger"
 
 export const pusher = new Pusher({
   appId: env.PUSHER_APP_ID,
@@ -60,6 +60,9 @@ export const messagesRouter = createTRPCRouter({
           type: messages.type,
           content: messages.content,
           timestamp: messages.timestamp,
+          emojies: sql<
+            string | null
+          >`(select group_concat(${messageEmojies.emoji}) from ${messageEmojies} where ${messageEmojies.messageId}=${messages.id})`,
         })
         .from(messages)
         .where(eq(messages.channel, channelId))
@@ -185,6 +188,9 @@ export const messagesRouter = createTRPCRouter({
           type: messages.type,
           content: messages.content,
           id: messages.id,
+          emojies: sql<
+            string | null
+          >`(select group_concat(${messageEmojies.emoji}) from ${messageEmojies} where ${messageEmojies.messageId}=${messages.id})`,
         })
         .from(messages)
         .where(eq(messages.channel, input.channel))
@@ -288,6 +294,7 @@ export const messagesRouter = createTRPCRouter({
         toEmail: recieverEmailAndIds.find((x) => x.recieverId === m.reciever)
           ?.recieverEmail as unknown as string,
         id: m.id,
+        emojies: m.emojies,
       }))
       await triggerChunked(pusher, input.channel, "message", data)
 
@@ -300,6 +307,41 @@ export const messagesRouter = createTRPCRouter({
           content: newMessage.content,
           timestamp: newMessage.timestamp,
         },
+      }
+    }),
+  reactWithEmoji: publicProcedure
+    .input(
+      z.object({
+        messageId: z.number(),
+        emoji: z.enum([
+          "thumbs_up",
+          "tears_of_joy",
+          "cool",
+          "fear",
+          "eyes_heart",
+        ]),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const newEmojiAdded = await db
+        .insert(messageEmojies)
+        .values({
+          messageId: input.messageId,
+          emoji: input.emoji,
+        })
+        .returning()
+        .get()
+
+      logger({
+        message: "messagesRouter.reactWithEmoji: newEmojiAdded",
+        data: newEmojiAdded,
+        level: "info",
+        email: ctx.session?.user.email,
+      })
+
+      return {
+        messageId: newEmojiAdded.messageId,
+        emoji: newEmojiAdded.emoji,
       }
     }),
 })
