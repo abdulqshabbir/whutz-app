@@ -3,6 +3,7 @@ import {
   friendEmailAtom,
   lastMessageRefAtom,
   messagesAtom,
+  replyToIdAtom,
 } from "@/atoms"
 import { type Message } from "@/components/ChatHistory"
 import { useIsClient } from "@/hooks/useIsClient"
@@ -175,6 +176,7 @@ function ChatInput({
   const [newMessage, setNewMessage] = useState("")
   const [friendEmail] = useAtom(friendEmailAtom)
   const [channel] = useAtom(channelAtom)
+  const replyToId = useAtomValue(replyToIdAtom)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const presignedPostMutation = trpc.s3.createPreSignedPostUrl.useMutation()
   const { data: userId } = trpc.user.getUserIdFromEmail.useQuery(
@@ -229,6 +231,11 @@ function ChatInput({
 
   return (
     <div className="relative">
+      {replyToId && (
+        <div className="absolute top-[-20px] w-full rounded-t-md bg-gray-300 pl-4 text-sm text-gray-500">
+          Replying to: abdulqshabbir@gmail.com
+        </div>
+      )}
       <Textarea
         className="m-0 h-full bg-gray-50 p-4"
         style={{ resize: "none" }}
@@ -246,6 +253,7 @@ function ChatInput({
                 channel: channel,
                 content: newMessage.trimEnd(),
                 type: "text",
+                replyToId: replyToId ?? undefined,
               })
               setNewMessage("")
             }

@@ -1,12 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
-import { friendEmailAtom, lastMessageRefAtom } from "@/atoms"
+import { friendEmailAtom, lastMessageRefAtom, replyToIdAtom } from "@/atoms"
 import { useUser } from "@/hooks/useUser"
 import { cn } from "@/lib/utils"
 import { trpc } from "@/utils/api"
 import { format, fromUnixTime } from "date-fns"
 import { motion } from "framer-motion"
-import { useAtomValue } from "jotai"
-import React, { type Dispatch, type SetStateAction, useState } from "react"
+import { useAtomValue, useSetAtom } from "jotai"
+import React, { useState, type Dispatch, type SetStateAction } from "react"
 import { BsEmojiSunglasses, BsReply } from "react-icons/bs"
 import { type RouterInputs } from "../utils/api"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar"
@@ -22,6 +22,9 @@ export type Message = {
   content: string
   shouldAnimate: boolean
   emojies: string | null
+  replyToId: number | null
+  replyToContent: string | null
+  replyToType: string | null
 }
 
 const ChatHistory = ({
@@ -78,7 +81,7 @@ function ChatWrapper({
 }) {
   return (
     <div
-      className={cn("min-h-[40px] max-w-fit rounded-md bg-gray-300 p-2", {
+      className={cn("min-h-[40px] max-w-fit rounded-md bg-gray-300", {
         "bg-gray-300": from === "ME",
         "bg-purple-300": from === "FRIEND",
       })}
@@ -88,8 +91,16 @@ function ChatWrapper({
   )
 }
 
-function ChatText({ children }: { children: React.ReactNode }) {
-  return <P className=" text-sm text-gray-900">{children}</P>
+function ChatText({
+  className,
+  children,
+}: {
+  className?: string
+  children: React.ReactNode
+}) {
+  return (
+    <P className={cn(`p-2 text-sm text-gray-900`, className)}>{children}</P>
+  )
 }
 
 function ChatTime({ children }: { children: React.ReactNode }) {
@@ -115,6 +126,7 @@ function ActionsBar({
   messageId: number
 }) {
   const [showEmojiesDropdown, setShowEmojiesDropdown] = useState<boolean>(false)
+  const setReplyToId = useSetAtom(replyToIdAtom)
   if (!show) return null
   return (
     <div
@@ -125,9 +137,11 @@ function ActionsBar({
           "right-2": from === "FRIEND",
         }
       )}
-      onClick={() => setShowEmojiesDropdown((prev) => !prev)}
     >
-      <div className="rounded-md p-2 hover:bg-slate-400 ">
+      <div
+        className="rounded-md p-2 hover:bg-slate-400"
+        onClick={() => setShowEmojiesDropdown((prev) => !prev)}
+      >
         <EmojiesDropdown
           messageId={messageId}
           from={from}
@@ -135,7 +149,12 @@ function ActionsBar({
           setShowEmojiesDropdown={setShowEmojiesDropdown}
         />
       </div>
-      <div className="rounded-md p-2 hover:bg-slate-400">
+      <div
+        className="rounded-md p-2 hover:bg-slate-400"
+        onClick={() => {
+          setReplyToId(messageId)
+        }}
+      >
         <BsReply />
       </div>
     </div>
@@ -268,7 +287,22 @@ const Wrapper = ({
   }
 }
 
+function ChatReplyWithText({ message }: { message: Message }) {
+  return (
+    <div className="flex flex-col">
+      <div className="flex items-center justify-start rounded-t-md bg-slate-400 text-right">
+        <div className="h-[100%] min-h-[35px] w-1 rounded-tl-md bg-slate-800"></div>
+        <ChatText className="text-gray-900">{message.replyToContent}</ChatText>
+      </div>
+      <ChatText>{message.content}</ChatText>
+    </div>
+  )
+}
+
 function ChatTextMessage({ message }: { message: Message }) {
+  if (message.replyToId) {
+    return <ChatReplyWithText message={message} />
+  }
   return <ChatText>{message.content}</ChatText>
 }
 
@@ -291,6 +325,18 @@ function ChatPdfMessage({ message }: { message: Message }) {
   )
 }
 
+function ChatMessageByType({ message }: { message: Message }) {
+  if (message.type === "text") {
+    return <ChatTextMessage message={message} />
+  }
+  if (message.type === "image") {
+    return <ChatImageMessage message={message} />
+  }
+  if (message.type === "pdf") {
+    return <ChatPdfMessage message={message} />
+  }
+}
+
 function UserMessage({
   message,
 }: {
@@ -306,9 +352,7 @@ function UserMessage({
     >
       <div className="flex flex-col items-end">
         <ChatWrapper from="ME">
-          {message.type === "text" && <ChatTextMessage message={message} />}
-          {message.type === "image" && <ChatImageMessage message={message} />}
-          {message.type === "pdf" && <ChatPdfMessage message={message} />}
+          <ChatMessageByType message={message} />
         </ChatWrapper>
         <div className="flex gap-2">
           <MessageEmojies emojies={message.emojies} messageId={message.id} />
@@ -373,9 +417,7 @@ function FriendMessage({
       </div>
       <div className="flex flex-col items-start">
         <ChatWrapper from="FRIEND">
-          {message.type === "text" && <ChatTextMessage message={message} />}
-          {message.type === "image" && <ChatImageMessage message={message} />}
-          {message.type === "pdf" && <ChatPdfMessage message={message} />}
+          <ChatMessageByType message={message} />
         </ChatWrapper>
         <div className="flex gap-2">
           <MessageEmojies emojies={message.emojies} messageId={message.id} />

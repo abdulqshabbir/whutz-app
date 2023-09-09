@@ -147,6 +147,7 @@ export const messagesRouter = createTRPCRouter({
         channel: z.string().min(1),
         content: z.string().min(1),
         type: z.enum(["text", "image"]),
+        replyToId: z.number().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -180,6 +181,7 @@ export const messagesRouter = createTRPCRouter({
           type: input.type,
           content: input.content,
           timestamp: now(),
+          replyToId: input.replyToId ?? null,
         })
         .returning()
         .get()
@@ -191,6 +193,7 @@ export const messagesRouter = createTRPCRouter({
         level: "info",
       })
 
+      const replyMessages = alias(messages, "replyMessage")
       const allMessagesForChannel = await db
         .select({
           sender: messages.sender,
@@ -202,8 +205,12 @@ export const messagesRouter = createTRPCRouter({
           emojies: sql<
             string | null
           >`(select group_concat(${messageEmojies.emoji}) from ${messageEmojies} where ${messageEmojies.messageId}=${messages.id})`,
+          replyToId: messages.replyToId,
+          replyToContent: replyMessages.content,
+          replyToType: replyMessages.type,
         })
         .from(messages)
+        .leftJoin(replyMessages, eq(messages.replyToId, replyMessages.id))
         .where(eq(messages.channel, input.channel))
         .all()
 
@@ -306,6 +313,9 @@ export const messagesRouter = createTRPCRouter({
           ?.recieverEmail as unknown as string,
         id: m.id,
         emojies: m.emojies,
+        replyToId: m.replyToId,
+        replyToContent: m.replyToContent,
+        replyToType: m.replyToType,
       }))
       await triggerChunked(pusher, input.channel, "message", data)
 
