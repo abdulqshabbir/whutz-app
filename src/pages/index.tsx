@@ -12,7 +12,7 @@ export default function Page() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Script src="https://js.pusher.com/8.2.0/pusher.min.js" />
-      <main className="flex h-screen flex-row">
+      <main className="flex h-screen flex-row flex-col sm:flex-row">
         <AccountBar />
         <ChatRoom />
       </main>

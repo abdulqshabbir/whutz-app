@@ -45,7 +45,7 @@ export function AccountBarDropdown() {
           <DropdownMenuLabel>
             {name?.split(" ")[0]}&apos;s Account
           </DropdownMenuLabel>
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator className="hidden sm:flex" />
           <DropdownMenuGroup>
             <DropdownMenuItem>
               <Settings className="mr-4" />
@@ -63,7 +63,7 @@ export function AccountBarDropdown() {
         </DropdownMenuContent>
       </DropdownMenu>
       <AddFriendDialog />
-      <Separator className="w-5/6 bg-gray-300" />
+      <Separator className="hidden w-5/6 bg-gray-300 sm:flex" />
       <FriendsList />
     </>
   )
