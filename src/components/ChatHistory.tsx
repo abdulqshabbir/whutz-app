@@ -6,7 +6,7 @@ import { trpc } from "@/utils/api"
 import { format, fromUnixTime } from "date-fns"
 import { motion } from "framer-motion"
 import { useAtomValue } from "jotai"
-import React, { useState } from "react"
+import React, { type Dispatch, type SetStateAction, useState } from "react"
 import { BsEmojiSunglasses, BsReply } from "react-icons/bs"
 import { type RouterInputs } from "../utils/api"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar"
@@ -114,7 +114,7 @@ function ActionsBar({
   show: boolean
   messageId: number
 }) {
-  const [showEmojiesDropdown, setShowEmojiesDropdown] = useState(false)
+  const [showEmojiesDropdown, setShowEmojiesDropdown] = useState<boolean>(false)
   if (!show) return null
   return (
     <div
@@ -125,12 +125,15 @@ function ActionsBar({
           "right-2": from === "FRIEND",
         }
       )}
+      onClick={() => setShowEmojiesDropdown((prev) => !prev)}
     >
-      <div
-        className="rounded-md p-2 hover:bg-slate-400 "
-        onClick={() => setShowEmojiesDropdown(!showEmojiesDropdown)}
-      >
-        <EmojiesDropdown messageId={messageId} />
+      <div className="rounded-md p-2 hover:bg-slate-400 ">
+        <EmojiesDropdown
+          messageId={messageId}
+          from={from}
+          showEmojiesDropdown={showEmojiesDropdown}
+          setShowEmojiesDropdown={setShowEmojiesDropdown}
+        />
       </div>
       <div className="rounded-md p-2 hover:bg-slate-400">
         <BsReply />
@@ -139,12 +142,21 @@ function ActionsBar({
   )
 }
 
-function EmojiesDropdown({ messageId }: { messageId: number }) {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+function EmojiesDropdown({
+  messageId,
+  from,
+  showEmojiesDropdown,
+  setShowEmojiesDropdown,
+}: {
+  messageId: number
+  from: "ME" | "FRIEND"
+  showEmojiesDropdown: boolean
+  setShowEmojiesDropdown: Dispatch<SetStateAction<boolean>>
+}) {
   const utils = trpc.useContext()
   const { mutate: reactWithEmoji } = trpc.messages.reactWithEmoji.useMutation({
     onMutate: () => {
-      setIsDropdownOpen(false)
+      setShowEmojiesDropdown(false)
     },
     onSuccess: () => {
       void utils.messages.getByChannel.invalidate()
@@ -175,9 +187,17 @@ function EmojiesDropdown({ messageId }: { messageId: number }) {
   ]
   return (
     <div className="relative cursor-pointer">
-      <BsEmojiSunglasses onClick={() => setIsDropdownOpen((prev) => !prev)} />
-      {isDropdownOpen && (
-        <div className="absolute left-[-6px] top-8 z-10 flex w-48 flex-col gap-4 rounded-md bg-slate-500 px-2 py-4">
+      <BsEmojiSunglasses />
+      {showEmojiesDropdown && (
+        <div
+          className={cn(
+            `absolute top-8 z-10 flex w-48 flex-col gap-4 rounded-md bg-slate-500 px-2 py-4`,
+            {
+              "left-[-6px]": from === "ME",
+              "right-[-6px]": from === "FRIEND",
+            }
+          )}
+        >
           {emojies.map((e) => {
             return (
               <div
