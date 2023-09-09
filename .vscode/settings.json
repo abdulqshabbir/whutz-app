@@ -18,7 +18,6 @@
     "next.config.mjs": true,
     "postcss.config.cjs": true,
     "prettier.config.cjs": true,
-    "README.md": true,
     "tailwind.config.js": true,
     "tailwind.config.ts": true,
     "tsconfig.json": true,

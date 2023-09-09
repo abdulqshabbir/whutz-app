@@ -11,7 +11,8 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 - [ ] add e2e tests using playright or cypress
 - [ ] make it mobile responsive
 - [ ] add ability to create threads/channels that are public and users can subscribe to (will require changes at db level)
-- [ ] support replies
+- [ ] support replies to images
+- [x] support replies to text
 - [x] support emojies
 
 ## How to run this project locally
