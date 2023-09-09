@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm"
 import {
+  foreignKey,
   integer,
   numeric,
   primaryKey,
@@ -84,23 +85,35 @@ export const userFriends = sqliteTable(
   }
 )
 
-export const messages = sqliteTable("messages", {
-  id: integer("id").primaryKey().notNull(),
-  sender: text("sender")
-    .notNull()
-    .references(() => users.id),
-  reciever: text("reciever")
-    .notNull()
-    .references(() => users.id),
-  channel: text("channel")
-    .notNull()
-    .references(() => channels.id),
-  type: text("type").notNull(),
-  content: text("content").notNull(),
-  timestamp: integer("timestamp")
-    .default(sql`(unixepoch())`)
-    .notNull(),
-})
+export const messages = sqliteTable(
+  "messages",
+  {
+    id: integer("id").primaryKey().notNull(),
+    sender: text("sender")
+      .notNull()
+      .references(() => users.id),
+    reciever: text("reciever")
+      .notNull()
+      .references(() => users.id),
+    channel: text("channel")
+      .notNull()
+      .references(() => channels.id),
+    type: text("type").notNull(),
+    content: text("content").notNull(),
+    timestamp: integer("timestamp")
+      .default(sql`(unixepoch())`)
+      .notNull(),
+    replyToId: integer("replyToId"),
+  },
+  (table) => {
+    return {
+      messagesReplyToIdMessagesIdFk: foreignKey(() => ({
+        columns: [table.replyToId],
+        foreignColumns: [table.id],
+      })),
+    }
+  }
+)
 
 export const channels = sqliteTable("channels", {
   id: text("id").primaryKey().notNull(),

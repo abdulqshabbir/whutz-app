@@ -10,6 +10,7 @@ import {
 import { logger } from "@/utils/logger"
 import { TRPCError } from "@trpc/server"
 import { asc, eq, sql } from "drizzle-orm"
+import { alias } from "drizzle-orm/sqlite-core"
 import Pusher from "pusher"
 import { z } from "zod"
 
@@ -52,6 +53,7 @@ export const messagesRouter = createTRPCRouter({
         })
       }
       const channelId = input.channel
+      const replyMessages = alias(messages, "replyMessage")
       const result = await db
         .select({
           id: messages.id,
@@ -60,11 +62,18 @@ export const messagesRouter = createTRPCRouter({
           type: messages.type,
           content: messages.content,
           timestamp: messages.timestamp,
-          emojies: sql<
-            string | null
-          >`(select group_concat(${messageEmojies.emoji}) from ${messageEmojies} where ${messageEmojies.messageId}=${messages.id})`,
+          emojies: sql<string | null>`
+          (
+            select group_concat(${messageEmojies.emoji})
+            from ${messageEmojies}
+            where ${messageEmojies.messageId}=${messages.id}
+          )`,
+          replyToId: messages.replyToId,
+          replyToContent: replyMessages.content,
+          replyToType: replyMessages.type,
         })
         .from(messages)
+        .leftJoin(replyMessages, eq(messages.replyToId, replyMessages.id))
         .where(eq(messages.channel, channelId))
         .orderBy(asc(messages.timestamp))
         .all()
