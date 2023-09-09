@@ -12,7 +12,7 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 - [ ] make it mobile responsive
 - [ ] add ability to create threads/channels that are public and users can subscribe to (will require changes at db level)
 - [ ] support replies
-- [ ] support emojies
+- [x] support emojies
 
 ## How to run this project locally
 
