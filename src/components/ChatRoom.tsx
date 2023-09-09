@@ -10,7 +10,7 @@ import { useIsClient } from "@/hooks/useIsClient"
 import { usePusher } from "@/hooks/usePusher"
 import { useUser } from "@/hooks/useUser"
 import { trpc, type RouterInputs } from "@/utils/api"
-import { useAtom, useAtomValue } from "jotai"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { useRouter } from "next/router"
 import { type Channel } from "pusher-js"
 import { useEffect, useRef, useState } from "react"
@@ -28,6 +28,7 @@ export function ChatRoom() {
   const isClient = useIsClient()
   const { mutate } = trpc.messages.send.useMutation()
   const [messages, setMessages] = useAtom(messagesAtom)
+  const setReplyToId = useSetAtom(replyToIdAtom)
   const channel = useAtomValue(channelAtom)
   const lastMessageRef = useAtomValue(lastMessageRefAtom)
   const pusher = usePusher()
@@ -144,6 +145,7 @@ export function ChatRoom() {
     mutate({
       ...input,
     })
+    setReplyToId(null)
   }
 
   const mappedInitialMessages: Message[] = (initialMessages ?? []).map((m) => ({
