@@ -121,7 +121,9 @@ export const messagesRouter = createTRPCRouter({
 
       logger({
         message: "messagesRouter.getByChannel: returned",
-        data: returned,
+        data: {
+          messages: returned,
+        },
         email: ctx.session.user.email,
         level: "info",
       })
