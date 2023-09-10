@@ -87,7 +87,7 @@ function FriendsList() {
 
   if (isFriendsLoading) {
     return (
-      <div>
+      <div className="flex gap-2 sm:flex-col sm:gap-4">
         <AvatarSkeleton />
         <AvatarSkeleton />
         <AvatarSkeleton />

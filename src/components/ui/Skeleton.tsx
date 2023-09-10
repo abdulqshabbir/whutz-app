@@ -19,7 +19,7 @@ function AvatarSkeleton({ className }: { className?: string }) {
   return (
     <Skeleton
       className={cn(
-        `mb-2 max-h-[3rem] min-h-[2rem] min-w-[2rem] max-w-[3rem] max-w-[3rem] rounded-full bg-gray-300 p-4`,
+        `max-h-[3rem] min-h-[2.5rem] min-w-[2.5rem] max-w-[3rem] rounded-full bg-gray-300 sm:h-[3rem] sm:w-[3rem]`,
         className
       )}
     />
