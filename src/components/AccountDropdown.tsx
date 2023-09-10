@@ -29,11 +29,11 @@ export function AccountBarDropdown() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <div className="mt-2 flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-gray-300">
+          <div className="mt-2 flex max-h-[3rem] min-h-[2rem] min-w-[2rem] max-w-[3rem] cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-gray-300">
             {image && (
               <Avatar className="cursor-pointer">
                 <AvatarImage src={image ?? undefined} alt="@shadcn" />
-                <AvatarFallback className="h-12 w-12 rounded-full bg-blue-200 p-4 hover:bg-blue-300">
+                <AvatarFallback className="max-h-[3rem] min-h-[2rem] min-w-[2rem] max-w-[3rem] rounded-full bg-blue-200 p-4 hover:bg-blue-300">
                   AS
                 </AvatarFallback>
               </Avatar>
@@ -103,7 +103,7 @@ function FriendsList() {
   return friends.map((friend) => (
     <div
       key={friend.email}
-      className={`mt-2 flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-gray-300 ${
+      className={`mt-2 flex max-h-[3rem] min-h-[2rem] min-w-[2rem] max-w-[3rem] cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-gray-300 ${
         friendEmail === friend.email
           ? " outline outline-4 outline-offset-2 outline-gray-400"
           : ""
@@ -116,7 +116,7 @@ function FriendsList() {
     >
       <Avatar className="cursor-pointer">
         <AvatarImage src={friend.image ?? ""} alt="@shadcn" />
-        <AvatarFallback className="h-12 w-12 rounded-full bg-blue-200 p-4 hover:bg-blue-300">
+        <AvatarFallback className="max-h-[3rem] min-h-[2rem] min-w-[2rem] max-w-[3rem] rounded-full bg-blue-200 p-4 hover:bg-blue-300">
           {friend.name?.slice(0, 1)}
         </AvatarFallback>
       </Avatar>

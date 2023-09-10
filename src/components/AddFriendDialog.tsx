@@ -40,7 +40,7 @@ export function AddFriendDialog() {
   return (
     <form>
       <AlertDialog>
-        <AlertDialogTrigger className="flex h-12 w-12 items-center justify-center hover:rounded-md hover:bg-gray-300">
+        <AlertDialogTrigger className="flex max-h-[3rem] min-h-[2rem] min-w-[2rem] max-w-[3rem] items-center justify-center hover:rounded-md hover:bg-gray-300">
           <UserPlus size={35} strokeWidth={1} className="relative left-1" />
         </AlertDialogTrigger>
         <AlertDialogContent>
