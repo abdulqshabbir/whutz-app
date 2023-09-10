@@ -43,13 +43,15 @@ export function AddFriendDialog() {
         <AlertDialogTrigger className="flex max-h-[3rem] min-h-[2rem] min-w-[2rem] max-w-[3rem] items-center justify-center hover:rounded-md hover:bg-gray-300">
           <UserPlus size={35} strokeWidth={1} className="relative left-1" />
         </AlertDialogTrigger>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-[90%] sm:max-w-[500px]">
           <AlertDialogHeader>
-            <AlertDialogTitle>Add a friend to WhutzApp!</AlertDialogTitle>
-            <AlertDialogDescription className="mb-2">
+            <AlertDialogTitle className="text-left">
+              Add a friend to WhutzApp!
+            </AlertDialogTitle>
+            <AlertDialogDescription className="mb-2 text-left">
               Add a friend to WhutzApp by entering their email below.
             </AlertDialogDescription>
-            <Label className="text-gray-400">Email: </Label>
+            <Label className="text-left text-gray-400">Email: </Label>
             <Input value={email} onChange={(e) => setEmail(e.target.value)} />
             {error && <Label className="text-red-400">{error}</Label>}
           </AlertDialogHeader>
