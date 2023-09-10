@@ -22,7 +22,7 @@ const SignUp = ({}) => {
   }
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <Card className="min-w-[500px] p-4">
+      <Card className="w-[90%] p-4 sm:max-w-[500px]">
         <CardHeader className="mb-4">
           <CardTitle className="text-3xl">Sign In</CardTitle>
           <CardDescription>
