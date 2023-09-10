@@ -1,19 +1,15 @@
-import {
-  channelAtom,
-  lastMessageRefAtom,
-  messagesAtom,
-  replyToIdAtom,
-} from "@/atoms"
+import { messagesAtom, replyToIdAtom } from "@/atoms"
 import { type Message } from "@/components/ChatRoom/ChatHistory"
+import { useChannelMessages } from "@/hooks/useChannelMessages"
 import { useIsClient } from "@/hooks/useIsClient"
 import { useListenForMessages } from "@/hooks/useListenForMessages"
 import { useUser } from "@/hooks/useUser"
 import { trpc } from "@/utils/api"
 import { useAtomValue, useSetAtom } from "jotai"
 import { useRouter } from "next/router"
-import { useEffect } from "react"
 import { ChatHistory } from "./ChatHistory"
 import { ChatInput, type SendMessageInput } from "./ChatInput"
+import { useScrollToBottomOfChat } from "@/hooks/useScrollToBottomOfChat"
 
 export function ChatRoom() {
   const { isAuthed } = useUser()
@@ -22,35 +18,13 @@ export function ChatRoom() {
   const { mutate } = trpc.messages.send.useMutation()
   const messages = useAtomValue(messagesAtom)
   const setReplyToId = useSetAtom(replyToIdAtom)
-  const channel = useAtomValue(channelAtom)
-  const lastMessageRef = useAtomValue(lastMessageRefAtom)
+  useScrollToBottomOfChat()
 
-  // main hook for listening for messages over websockets
+  // main hook for grabbing initial chat messages on load
+  const { initialMessages, isMessagesLoading } = useChannelMessages()
+
+  // main hook for listening for messages over websockets after initial load
   useListenForMessages()
-
-  useEffect(() => {
-    lastMessageRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages.length, lastMessageRef])
-
-  useEffect(() => {
-    lastMessageRef.current?.scrollIntoView()
-  }, [channel, lastMessageRef])
-
-  const { data: initialMessages, isLoading: isMessagesLoading } =
-    trpc.messages.getByChannel.useQuery(
-      {
-        channel,
-      },
-      {
-        enabled: Boolean(channel),
-        refetchOnWindowFocus: false,
-      }
-    )
-  useEffect(() => {
-    if (!isMessagesLoading) {
-      lastMessageRef.current?.scrollIntoView()
-    }
-  }, [isMessagesLoading, lastMessageRef])
 
   if (isClient && !isAuthed) {
     void router.push("/signup")
