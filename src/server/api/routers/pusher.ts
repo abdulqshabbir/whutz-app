@@ -1,4 +1,4 @@
-import { type Message } from "@/components/ChatHistory"
+import { type Message } from "@/components/ChatRoom/ChatHistory"
 import { env } from "@/env.mjs"
 import { db } from "@/lib/db"
 import { messageEmojies, messages, users } from "@/lib/db/schema"

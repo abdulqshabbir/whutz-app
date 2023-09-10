@@ -1,5 +1,5 @@
 import { atom } from "jotai"
-import { type Message } from "@/components/ChatHistory"
+import { type Message } from "@/components/ChatRoom/ChatHistory"
 import { createRef } from "react"
 
 export const friendEmailAtom = atom("")
