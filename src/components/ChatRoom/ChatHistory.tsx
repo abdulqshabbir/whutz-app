@@ -1,7 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
-import { friendEmailAtom, lastMessageRefAtom } from "@/atoms"
+import { lastMessageRefAtom } from "@/atoms"
+import { useFriendNameAndImage } from "@/hooks/useFriendNameAndEmail"
 import { useUser } from "@/hooks/useUser"
-import { trpc } from "@/utils/api"
 import { useAtomValue } from "jotai"
 import React from "react"
 import { ChatHistorySkeleton } from "../ui/Skeleton"
@@ -29,14 +28,8 @@ const ChatHistory = ({
   messages: Message[]
   isMessagesLoading: boolean
 }) => {
-  const friendEmail = useAtomValue(friendEmailAtom)
   const { email } = useUser()
-  const { data } = trpc.friend.getProfileInfo.useQuery(
-    {
-      friendEmail,
-    },
-    { enabled: Boolean(friendEmail) }
-  )
+  const { friendImage, friendName } = useFriendNameAndImage()
   const lastMessageRef = useAtomValue(lastMessageRefAtom)
 
   if (isMessagesLoading) {
@@ -55,8 +48,8 @@ const ChatHistory = ({
           ) : (
             <FriendMessage
               message={m}
-              friendAvatarImage={data?.image ?? ""}
-              friendName={data?.name ?? ""}
+              friendAvatarImage={friendImage ?? ""}
+              friendName={friendName ?? ""}
               isLastMessage={messages?.length - 1 === idx}
             />
           )}

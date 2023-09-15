@@ -6,6 +6,7 @@ import { Input } from "../ui/InputField"
 import { useState, useRef } from "react"
 import { GrAttachment } from "react-icons/gr"
 import { Textarea } from "../ui/TextArea"
+import { useUserIdFromEmail } from "@/hooks/useUserIdFromEmai"
 
 export type SendMessageInput = RouterInputs["messages"]["send"]
 
@@ -21,15 +22,7 @@ export function ChatInput({
   const replyToId = useAtomValue(replyToIdAtom)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const presignedPostMutation = trpc.s3.createPreSignedPostUrl.useMutation()
-  const { data: userId } = trpc.user.getUserIdFromEmail.useQuery(
-    {
-      email: email ?? "",
-    },
-    {
-      enabled: Boolean(email),
-      refetchOnWindowFocus: false,
-    }
-  )
+  const { userId } = useUserIdFromEmail()
 
   async function uploadToS3(file: File | undefined) {
     if (!file) return
