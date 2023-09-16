@@ -2,9 +2,9 @@ import { useUser } from "@/hooks/useUser"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar"
 import { Wrapper, ChatWrapper } from "./MessageWrapper"
 import { type Message } from "./ChatHistory"
-import { convertTimestampToTime } from "./utils"
-import { EmojiReactions } from "./MessageTypes/EmojiReaction"
 import { ChatMessageByType, ChatTime } from "./ChatHistoryHelpers"
+import { EmojiReactions } from "./MessageTypes/EmojiReaction"
+import { convertTimestampToTime } from "./utils"
 
 export function UserMessage({
   message,

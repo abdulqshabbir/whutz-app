@@ -14,7 +14,7 @@ import { useFriends } from "@/hooks/useFriends"
 import { useUser } from "@/hooks/useUser"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
 import { useAtom, useSetAtom } from "jotai"
-import { LogOut, Settings } from "lucide-react"
+import { LogOut, Settings, Users } from "lucide-react"
 import { signOut } from "next-auth/react"
 import { useRouter } from "next/router"
 import { useEffect } from "react"
@@ -50,6 +50,14 @@ export function AccountBarDropdown() {
             <DropdownMenuItem>
               <Settings className="mr-4" />
               <span>Account Settings</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                void router.push("friend-invitations")
+              }}
+            >
+              <Users className="mr-4" />
+              <span>Friend Invitations</span>
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {

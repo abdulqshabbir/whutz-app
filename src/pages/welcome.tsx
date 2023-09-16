@@ -24,7 +24,7 @@ export default function Page() {
           <div className="my-8 overflow-hidden rounded-lg">
             <Image src="/assets/icon.png" alt="" width={200} height={200} />
           </div>
-          <H1>Welcome to WhutzApp!</H1>
+          <H1>Welcome how are you?</H1>
           <P className="mb-8">The best place to chat with your friends.</P>
         </div>
       </main>
