@@ -4,7 +4,7 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 
 ## Todo
 
-- [ ] Refactor all api calls behind custom hooks
+- [x] Refactor all api calls behind custom hooks
 - [ ] handle error/success states of api calls with toast notifications
 - [ ] friend request once sent should have a pending state (either sent or yet to accept) and linking should only happen once friend accepts
 - [ ] support sending of file/pdf/audio/video formats (frontend and backend)

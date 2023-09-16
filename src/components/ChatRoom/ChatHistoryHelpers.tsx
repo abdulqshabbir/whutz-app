@@ -13,7 +13,7 @@ export function ChatMessageByType({ message }: { message: Message }) {
     return <ChatTextMessage message={message} />
   }
   if (message.type === "image") {
-    return <ChatImageMessage message={message} />
+    return <ChatImageMessage imageUrl={message.content} />
   }
   if (message.type === "pdf") {
     return <ChatPdfMessage message={message} />
