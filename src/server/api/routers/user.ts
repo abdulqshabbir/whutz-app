@@ -1,5 +1,5 @@
 import { db } from "@/lib/db"
-import { channels, userFriends, users } from "@/lib/db/schema"
+import { channels, friendRequests, userFriends, users } from "@/lib/db/schema"
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -37,6 +37,40 @@ export const userRouter = createTRPCRouter({
         level: "info",
       })
       return result?.id ?? null
+    }),
+  sendFriendRequestV2: publicProcedure
+    .input(
+      z.object({
+        receiverEmail: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const userEmail = ctx.session?.user?.email
+
+      if (!userEmail) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+        })
+      }
+
+      const record = await db
+        .insert(friendRequests)
+        .values({
+          senderEmail: userEmail,
+          receiverEmail: input.receiverEmail,
+          status: "pending",
+        })
+        .returning()
+        .get()
+
+      logger({
+        message: "user.sendFriendRequestV2",
+        data: record,
+        email: userEmail,
+        level: "info",
+      })
+
+      return record
     }),
   getFriendsByEmail: publicProcedure
     .input(
@@ -130,18 +164,12 @@ export const userRouter = createTRPCRouter({
       // create a new user-friend-chanel link
       const userFriendLink = await db
         .insert(userFriends)
-        .values([
-          {
-            userId: userId,
-            friendId: friendId,
-            channelId: channel.id,
-          },
-          {
-            userId: friendId,
-            friendId: userId,
-            channelId: channel.id,
-          },
-        ])
+        .values({
+          userId: userId,
+          friendId: friendId,
+          channelId: channel.id,
+          acceptedFriendRequest: "0",
+        })
         .returning()
         .get()
 

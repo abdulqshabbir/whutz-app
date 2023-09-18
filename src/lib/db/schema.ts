@@ -74,13 +74,30 @@ export const userFriends = sqliteTable(
     channelId: text("channelId")
       .notNull()
       .references(() => channels.id),
-    acceptedFriendRequest: numeric("acceptedFriendRequest")
-      .notNull()
-      .default("0"),
+    acceptedFriendRequest: numeric("acceptedFriendRequest").notNull(),
   },
   (table) => {
     return {
       pk0: primaryKey(table.friendId, table.userId),
+    }
+  }
+)
+
+export const channels = sqliteTable("channels", {
+  id: text("id").primaryKey().notNull(),
+})
+
+export const messageEmojies = sqliteTable(
+  "messageEmojies",
+  {
+    messageId: integer("messageId")
+      .notNull()
+      .references(() => messages.id, { onDelete: "cascade" }),
+    emoji: text("emoji").notNull(),
+  },
+  (table) => {
+    return {
+      pk0: primaryKey(table.emoji, table.messageId),
     }
   }
 )
@@ -115,20 +132,9 @@ export const messages = sqliteTable(
   }
 )
 
-export const channels = sqliteTable("channels", {
-  id: text("id").primaryKey().notNull(),
+export const friendRequests = sqliteTable("friendRequests", {
+  id: integer("id").primaryKey({ autoIncrement: true }).notNull(),
+  senderEmail: text("senderEmail").notNull(),
+  receiverEmail: text("receiverEmail").notNull(),
+  status: text("status"),
 })
-export const messageEmojies = sqliteTable(
-  "messageEmojies",
-  {
-    messageId: integer("messageId")
-      .notNull()
-      .references(() => messages.id, { onDelete: "cascade" }),
-    emoji: text("emoji").notNull(),
-  },
-  (table) => {
-    return {
-      pk0: primaryKey(table.emoji, table.messageId),
-    }
-  }
-)

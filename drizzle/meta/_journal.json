@@ -64,6 +64,13 @@
       "when": 1694235064597,
       "tag": "0008_third_scorpion",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1694928149037,
+      "tag": "0009_vengeful_penance",
+      "breakpoints": true
     }
   ]
 }
