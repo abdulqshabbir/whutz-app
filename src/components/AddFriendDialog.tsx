@@ -15,6 +15,7 @@ import * as z from "zod"
 import { Button } from "./ui/Button"
 import { Input } from "./ui/InputField"
 import { Label } from "./ui/Label"
+import toast from "react-hot-toast"
 
 const addFriendSchema = z.object({
   email: z.string().email(),
@@ -23,23 +24,28 @@ const addFriendSchema = z.object({
 export function AddFriendDialog() {
   const [email, setEmail] = useState("")
   const [error, setError] = useState("")
-  const mutation = trpc.user.sendFriendRequest.useMutation({
+  const [modalOpen, setModalOpen] = useState(false)
+  const mutation = trpc.user.sendFriendRequestV2.useMutation({
     onError(error) {
       setError(error.message)
+    },
+    onSuccess() {
+      setModalOpen(false)
+      toast.success("Friend request sent!")
     },
   })
   const onSubmit = (email: string) => {
     const parsedEmail = addFriendSchema.safeParse({ email })
     if (parsedEmail.success) {
       setError("")
-      mutation.mutate({ email })
+      mutation.mutate({ receiverEmail: email })
     } else {
       setError(parsedEmail.error.issues?.[0]?.message ?? "Invalid email")
     }
   }
   return (
     <form>
-      <AlertDialog>
+      <AlertDialog open={modalOpen} onOpenChange={setModalOpen}>
         <AlertDialogTrigger className="flex max-h-[3rem] min-h-[2rem] min-w-[2rem] max-w-[3rem] items-center justify-center hover:rounded-md hover:bg-gray-300">
           <UserPlus size={35} strokeWidth={1} className="relative left-1" />
         </AlertDialogTrigger>
