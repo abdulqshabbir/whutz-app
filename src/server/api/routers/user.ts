@@ -5,7 +5,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc"
-import { eq, inArray, sql } from "drizzle-orm"
+import { and, eq, inArray, sql } from "drizzle-orm"
 import { z } from "zod"
 import { getUserIdFromEmail } from "./pusher"
 import { TRPCError } from "@trpc/server"
@@ -71,6 +71,50 @@ export const userRouter = createTRPCRouter({
       })
 
       return record
+    }),
+  acceptFriendRequestV2: publicProcedure
+    .input(
+      z.object({
+        email: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userEmail = ctx.session?.user?.email
+
+      if (!userEmail) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Unauthorized",
+        })
+      }
+
+      const matchingFriendRequest = await db
+        .select()
+        .from(friendRequests)
+        .where(
+          and(
+            eq(friendRequests.senderEmail, input.email),
+            eq(friendRequests.receiverEmail, userEmail)
+          )
+        )
+        .get()
+
+      if (!matchingFriendRequest) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No matching friend request found.",
+        })
+      }
+      const updatedFriendRequest = await db
+        .update(friendRequests)
+        .set({
+          status: "accepted",
+        })
+        .where(eq(friendRequests.senderEmail, input.email))
+        .returning()
+        .get()
+
+      return updatedFriendRequest
     }),
   getFriendsByEmail: publicProcedure
     .input(
