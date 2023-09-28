@@ -110,7 +110,12 @@ export const userRouter = createTRPCRouter({
         .set({
           status: "accepted",
         })
-        .where(eq(friendRequests.senderEmail, input.email))
+        .where(
+          and(
+            eq(friendRequests.senderEmail, input.email),
+            eq(friendRequests.receiverEmail, userEmail)
+          )
+        )
         .returning()
         .get()
 

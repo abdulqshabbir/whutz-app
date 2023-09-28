@@ -19,11 +19,12 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 
 # Friend request flow
 
-- [ ] create a function `user.sendFriendRequest` which accepts an email address and adds an entry to the pendingFriendRequests table (userEmail, friendRequestEmail, status = 'pending') and also sends a websocket event `send_friend_request`
-- [ ] create a function `user.acceptFriendRequest` which accepts an email (friendRequestEmail) and finds the coresponding entry in the `pendingFriendRequests` table, change status to 'accepted', and add a new entry in the `userFriends` table `accept_friend_request`
+- [x] create a function `user.sendFriendRequest` which accepts an email address and adds an entry to the pendingFriendRequests table (userEmail, friendRequestEmail, status = 'pending')
+- [x] create a function `user.acceptFriendRequest` which accepts an email (friendRequestEmail) and finds the coresponding entry in the `pendingFriendRequests` table, change status to 'accepted', and add a new entry in the `userFriends` table `accept_friend_request`
 - [ ] create a function `user.getPendingFriendRequests` which lists all pending friend requests for a particuar user
 - [ ] create a fucntion `user.getConnections` which lists all users the
 - [ ] handle error/success states of api calls with toast notifications
+- [ ] make friend requests realtime using websockets
 
 ## How to run this project locally
 
