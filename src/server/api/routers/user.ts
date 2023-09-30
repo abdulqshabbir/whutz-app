@@ -5,11 +5,11 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc"
+import { logger } from "@/utils/logger"
+import { TRPCError } from "@trpc/server"
 import { and, eq, inArray, sql } from "drizzle-orm"
 import { z } from "zod"
 import { getUserIdFromEmail } from "./pusher"
-import { TRPCError } from "@trpc/server"
-import { logger } from "@/utils/logger"
 
 export const userRouter = createTRPCRouter({
   getUserIdFromEmail: protectedProcedure
@@ -121,6 +121,26 @@ export const userRouter = createTRPCRouter({
 
       return updatedFriendRequest
     }),
+  getPendingFriendRequests: publicProcedure.query(async ({ ctx }) => {
+    const email = ctx.session?.user.email
+
+    if (!email) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+      })
+    }
+
+    const pendingFriendRequests = await db
+      .select({
+        pendingFriendEmail: friendRequests.receiverEmail,
+        pendingFriendImage: users.image,
+      })
+      .from(friendRequests)
+      .innerJoin(users, eq(users.email, friendRequests.receiverEmail))
+      .all()
+
+    return pendingFriendRequests
+  }),
   getFriendsByEmail: publicProcedure
     .input(
       z.object({
