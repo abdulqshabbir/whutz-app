@@ -4,19 +4,16 @@ import { Button } from "@/components/ui/Button"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs"
 import { H1 } from "@/components/ui/typography/H1"
+import { useAcceptFriendRequestMutation } from "@/hooks/useAcceptFriendRequestMutation"
+import { usePendingFriendRequets } from "@/hooks/usePendingFriendRequests"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
 import Head from "next/head"
 import Script from "next/script"
 import React from "react"
 
-export default function friendInvitations() {
-  const invitations = [
-    {
-      name: "John Doe",
-      image:
-        "https://lh3.googleusercontent.com/a/AAcHTtc7MXwCHF-QkzYngg_oyLv55KBKUYp8kzky9OStNIW7=s96-c",
-    },
-  ]
+export default function FriendInvitations() {
+  const { pendingFriends } = usePendingFriendRequets()
+  const { acceptFriendRequest } = useAcceptFriendRequestMutation()
 
   const connections = [
     {
@@ -57,40 +54,51 @@ export default function friendInvitations() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="invitations">
-              {invitations.map((inv, idx) => {
-                const isLast = idx === invitations.length - 1
-                return (
-                  <React.Fragment key={`${inv.image}-${idx}`}>
-                    <div
-                      key={`${inv.image}-${idx}`}
-                      className="flex items-center justify-between p-2"
-                    >
-                      <div className="flex items-center gap-8">
-                        <Avatar className="cursor-pointer">
-                          <AvatarImage
-                            src={inv.image}
-                            alt="@shadcn"
-                            className="h-12 w-12 rounded-full"
-                          />
-                          <AvatarFallback className="h-[2rem] w-[2rem] rounded-full bg-blue-200 p-4 hover:bg-blue-300">
-                            AS
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>{inv.name}</div>
-                      </div>
-                      <div className="flex gap-4">
-                        <Button>Accept</Button>
-                        <Button variant={"outline"}>Reject</Button>
-                      </div>
-                    </div>
-                    {!isLast && <Separator />}
-                  </React.Fragment>
-                )
-              })}
+              {!pendingFriends
+                ? "You have no pending friend requests!"
+                : pendingFriends.map((inv, idx) => {
+                    const isLast = idx === pendingFriends.length - 1
+                    return (
+                      <React.Fragment key={`${inv.pendingFriendImage}-${idx}`}>
+                        <div
+                          key={`${inv.pendingFriendImage}-${idx}`}
+                          className="flex items-center justify-between p-2"
+                        >
+                          <div className="flex items-center gap-8">
+                            <Avatar className="cursor-pointer">
+                              <AvatarImage
+                                src={inv.pendingFriendImage ?? ""}
+                                alt="@shadcn"
+                                className="h-12 w-12 rounded-full"
+                              />
+                              <AvatarFallback className="h-[2rem] w-[2rem] rounded-full bg-blue-200 p-4 hover:bg-blue-300">
+                                AS
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>{inv.pendingFriendEmail}</div>
+                          </div>
+                          <div className="flex gap-4">
+                            <Button
+                              onClick={() =>
+                                acceptFriendRequest({
+                                  email: inv.pendingFriendEmail,
+                                })
+                              }
+                            >
+                              Accept
+                            </Button>
+                            <Button variant={"outline"}>Reject</Button>
+                          </div>
+                        </div>
+                        {!isLast && <Separator />}
+                      </React.Fragment>
+                    )
+                  })}
             </TabsContent>
             <TabsContent value="friends">
               {connections.map((friend, idx) => {
-                const isLast = idx === invitations.length - 1
+                if (!pendingFriends) return null
+                const isLast = idx === pendingFriends.length - 1
                 return (
                   <React.Fragment key={`${friend.image}-${idx}`}>
                     <div
