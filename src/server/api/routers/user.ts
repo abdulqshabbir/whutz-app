@@ -53,6 +53,24 @@ export const userRouter = createTRPCRouter({
         })
       }
 
+      const friendRequestExists = await db
+        .select()
+        .from(friendRequests)
+        .where(
+          and(
+            eq(friendRequests.senderEmail, userEmail),
+            eq(friendRequests.receiverEmail, input.receiverEmail)
+          )
+        )
+        .get()
+
+      if (friendRequestExists) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Friend request already exists.",
+        })
+      }
+
       const record = await db
         .insert(friendRequests)
         .values({
@@ -94,7 +112,8 @@ export const userRouter = createTRPCRouter({
         .where(
           and(
             eq(friendRequests.senderEmail, input.email),
-            eq(friendRequests.receiverEmail, userEmail)
+            eq(friendRequests.receiverEmail, userEmail),
+            eq(friendRequests.status, "pending")
           )
         )
         .get()
@@ -116,6 +135,43 @@ export const userRouter = createTRPCRouter({
             eq(friendRequests.receiverEmail, userEmail)
           )
         )
+        .returning()
+        .get()
+
+      const newChannel = await db
+        .insert(channels)
+        .values({
+          id: crypto.randomUUID(),
+        })
+        .returning()
+        .get()
+
+      const userId = await getUserIdFromEmail(userEmail)
+      const friendId = await getUserIdFromEmail(input.email)
+
+      if (!userId || !friendId) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User or friend not found",
+        })
+      }
+
+      await db
+        .insert(userFriends)
+        .values([
+          {
+            userId: userId,
+            friendId: friendId,
+            channelId: newChannel.id,
+            acceptedFriendRequest: "1",
+          },
+          {
+            userId: friendId,
+            friendId: userId,
+            channelId: newChannel.id,
+            acceptedFriendRequest: "1",
+          },
+        ])
         .returning()
         .get()
 
