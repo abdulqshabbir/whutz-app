@@ -5,11 +5,16 @@ import { useAtomValue, useSetAtom } from "jotai"
 import { useEffect } from "react"
 import { z } from "zod"
 import { usePusher } from "./usePusher"
-
+import { useUser } from "./useUser"
+import useSound from "use-sound"
 export function useListenForMessages() {
   const pusher = usePusher()
   const channel = useAtomValue(channelAtom)
   const setMessages = useSetAtom(messagesAtom)
+  const user = useUser()
+  const [playNewMessageSound] = useSound("/assets/new-message.mp3", {
+    volume: 0.25,
+  })
 
   if (!pusher) {
     throw new Error("usePusher should be used inside of Pusher Provider")
@@ -41,7 +46,10 @@ export function useListenForMessages() {
           shouldAnimate: z.boolean(),
         })
       )
-
+      // if a new message not from user
+      if (mappedMessages.at(-1)?.fromEmail !== user.email) {
+        playNewMessageSound()
+      }
       messageSchema.parse(mappedMessages)
       setMessages(mappedMessages)
     }
