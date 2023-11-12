@@ -47,7 +47,10 @@ export function useListenForMessages() {
         })
       )
       // if a new message not from user
-      if (mappedMessages.at(-1)?.fromEmail !== user.email) {
+      if (
+        // at syntax unfortunately crashes on my safari browser version :(
+        mappedMessages?.[mappedMessages.length - 1]?.fromEmail !== user.email
+      ) {
         playNewMessageSound()
       }
       messageSchema.parse(mappedMessages)

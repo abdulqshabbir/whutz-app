@@ -7,7 +7,7 @@ import {
 } from "@/server/api/trpc"
 import { logger } from "@/utils/logger"
 import { TRPCError } from "@trpc/server"
-import { and, eq, inArray, sql } from "drizzle-orm"
+import { and, eq, inArray, ne, sql } from "drizzle-orm"
 import { z } from "zod"
 import { getUserIdFromEmail } from "./pusher"
 
@@ -53,6 +53,24 @@ export const userRouter = createTRPCRouter({
         })
       }
 
+      const friendRequestExists = await db
+        .select()
+        .from(friendRequests)
+        .where(
+          and(
+            eq(friendRequests.senderEmail, userEmail),
+            eq(friendRequests.receiverEmail, input.receiverEmail)
+          )
+        )
+        .get()
+
+      if (friendRequestExists) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Friend request already exists.",
+        })
+      }
+
       const record = await db
         .insert(friendRequests)
         .values({
@@ -75,7 +93,7 @@ export const userRouter = createTRPCRouter({
   acceptFriendRequestV2: publicProcedure
     .input(
       z.object({
-        email: z.string(),
+        senderEmail: z.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -93,8 +111,9 @@ export const userRouter = createTRPCRouter({
         .from(friendRequests)
         .where(
           and(
-            eq(friendRequests.senderEmail, input.email),
-            eq(friendRequests.receiverEmail, userEmail)
+            eq(friendRequests.senderEmail, input.senderEmail),
+            eq(friendRequests.receiverEmail, userEmail),
+            eq(friendRequests.status, "pending")
           )
         )
         .get()
@@ -112,16 +131,53 @@ export const userRouter = createTRPCRouter({
         })
         .where(
           and(
-            eq(friendRequests.senderEmail, input.email),
+            eq(friendRequests.senderEmail, input.senderEmail),
             eq(friendRequests.receiverEmail, userEmail)
           )
         )
         .returning()
         .get()
 
+      const newChannel = await db
+        .insert(channels)
+        .values({
+          id: crypto.randomUUID(),
+        })
+        .returning()
+        .get()
+
+      const userId = await getUserIdFromEmail(userEmail)
+      const friendId = await getUserIdFromEmail(input.senderEmail)
+
+      if (!userId || !friendId) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User or friend not found",
+        })
+      }
+
+      await db
+        .insert(userFriends)
+        .values([
+          {
+            userId: userId,
+            friendId: friendId,
+            channelId: newChannel.id,
+            acceptedFriendRequest: "1",
+          },
+          {
+            userId: friendId,
+            friendId: userId,
+            channelId: newChannel.id,
+            acceptedFriendRequest: "1",
+          },
+        ])
+        .returning()
+        .get()
+
       return updatedFriendRequest
     }),
-  getPendingFriendRequests: publicProcedure.query(async ({ ctx }) => {
+  getPendingInvitations: publicProcedure.query(async ({ ctx }) => {
     const email = ctx.session?.user.email
 
     if (!email) {
@@ -132,11 +188,17 @@ export const userRouter = createTRPCRouter({
 
     const pendingFriendRequests = await db
       .select({
-        pendingFriendEmail: friendRequests.receiverEmail,
+        pendingFriendEmail: friendRequests.senderEmail,
         pendingFriendImage: users.image,
       })
       .from(friendRequests)
-      .innerJoin(users, eq(users.email, friendRequests.receiverEmail))
+      .innerJoin(users, eq(users.email, friendRequests.senderEmail))
+      .where(
+        and(
+          eq(friendRequests.status, "pending"),
+          ne(friendRequests.senderEmail, email)
+        )
+      )
       .all()
 
     return pendingFriendRequests

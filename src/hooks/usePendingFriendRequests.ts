@@ -1,14 +1,14 @@
 import { trpc } from "@/utils/api"
 
-export function usePendingFriendRequets() {
+export function usePendingInvitations() {
   const {
     data: pendingFriends,
     isLoading: isPendingFriendsLoading,
     isError: isPendingFriendsError,
-  } = trpc.user.getPendingFriendRequests.useQuery()
+  } = trpc.user.getPendingInvitations.useQuery()
 
   return {
-    pendingFriends,
+    pendingFriends: pendingFriends ?? [],
     isPendingFriendsLoading,
     isPendingFriendsError,
   }
