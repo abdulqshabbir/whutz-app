@@ -7,7 +7,7 @@ import {
 } from "@/server/api/trpc"
 import { logger } from "@/utils/logger"
 import { TRPCError } from "@trpc/server"
-import { and, eq, inArray, sql } from "drizzle-orm"
+import { and, eq, inArray, ne, sql } from "drizzle-orm"
 import { z } from "zod"
 import { getUserIdFromEmail } from "./pusher"
 
@@ -93,7 +93,7 @@ export const userRouter = createTRPCRouter({
   acceptFriendRequestV2: publicProcedure
     .input(
       z.object({
-        email: z.string(),
+        senderEmail: z.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -111,7 +111,7 @@ export const userRouter = createTRPCRouter({
         .from(friendRequests)
         .where(
           and(
-            eq(friendRequests.senderEmail, input.email),
+            eq(friendRequests.senderEmail, input.senderEmail),
             eq(friendRequests.receiverEmail, userEmail),
             eq(friendRequests.status, "pending")
           )
@@ -131,7 +131,7 @@ export const userRouter = createTRPCRouter({
         })
         .where(
           and(
-            eq(friendRequests.senderEmail, input.email),
+            eq(friendRequests.senderEmail, input.senderEmail),
             eq(friendRequests.receiverEmail, userEmail)
           )
         )
@@ -147,7 +147,7 @@ export const userRouter = createTRPCRouter({
         .get()
 
       const userId = await getUserIdFromEmail(userEmail)
-      const friendId = await getUserIdFromEmail(input.email)
+      const friendId = await getUserIdFromEmail(input.senderEmail)
 
       if (!userId || !friendId) {
         throw new TRPCError({
@@ -177,7 +177,7 @@ export const userRouter = createTRPCRouter({
 
       return updatedFriendRequest
     }),
-  getPendingFriendRequests: publicProcedure.query(async ({ ctx }) => {
+  getPendingInvitations: publicProcedure.query(async ({ ctx }) => {
     const email = ctx.session?.user.email
 
     if (!email) {
@@ -188,11 +188,17 @@ export const userRouter = createTRPCRouter({
 
     const pendingFriendRequests = await db
       .select({
-        pendingFriendEmail: friendRequests.receiverEmail,
+        pendingFriendEmail: friendRequests.senderEmail,
         pendingFriendImage: users.image,
       })
       .from(friendRequests)
-      .innerJoin(users, eq(users.email, friendRequests.receiverEmail))
+      .innerJoin(users, eq(users.email, friendRequests.senderEmail))
+      .where(
+        and(
+          eq(friendRequests.status, "pending"),
+          ne(friendRequests.senderEmail, email)
+        )
+      )
       .all()
 
     return pendingFriendRequests
