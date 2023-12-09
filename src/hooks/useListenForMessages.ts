@@ -5,7 +5,7 @@ import { useAtomValue, useSetAtom } from "jotai"
 import { useEffect } from "react"
 import { z } from "zod"
 import { usePusher } from "./usePusher"
-import { useUser } from "./useUser"
+import { useUser } from "./queries/useUser"
 import useSound from "use-sound"
 export function useListenForMessages() {
   const pusher = usePusher()

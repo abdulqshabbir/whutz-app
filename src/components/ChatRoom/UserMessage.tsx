@@ -1,4 +1,4 @@
-import { useUser } from "@/hooks/useUser"
+import { useUser } from "@/hooks/queries/useUser"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/Avatar"
 import { Wrapper, ChatWrapper } from "./MessageWrapper"
 import { type Message } from "./ChatHistory"

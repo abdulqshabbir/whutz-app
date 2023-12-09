@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/Card"
 import { Separator } from "@/components/ui/separator"
 import { useIsClient } from "@/hooks/useIsClient"
-import { useUser } from "@/hooks/useUser"
+import { useUser } from "@/hooks/queries/useUser"
 import { signIn } from "next-auth/react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"

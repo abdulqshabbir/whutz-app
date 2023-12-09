@@ -1,5 +1,5 @@
 import { PusherProvider } from "@/hooks/usePusher"
-import { UserProvider } from "@/hooks/useUser"
+import { UserProvider } from "@/hooks/queries/useUser"
 import "@/styles/globals.css"
 import { trpc } from "@/utils/api"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"

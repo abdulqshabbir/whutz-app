@@ -1,12 +1,12 @@
 import { friendEmailAtom, channelAtom, replyToIdAtom } from "@/atoms"
-import { useUser } from "@/hooks/useUser"
+import { useUser } from "@/hooks/queries/useUser"
 import { type RouterInputs, trpc } from "@/utils/api"
 import { useAtom, useAtomValue } from "jotai"
 import { Input } from "../ui/InputField"
 import { useState, useRef } from "react"
 import { GrAttachment } from "react-icons/gr"
 import { Textarea } from "../ui/TextArea"
-import { useUserIdFromEmail } from "@/hooks/useUserIdFromEmai"
+import { useUserIdFromEmail } from "@/hooks/queries/useUserIdFromEmai"
 
 export type SendMessageInput = RouterInputs["messages"]["send"]
 

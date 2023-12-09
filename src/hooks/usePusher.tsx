@@ -2,7 +2,7 @@ import { createContext, useContext } from "react"
 import { env } from "@/env.mjs"
 import Pusher from "pusher-js"
 import { logger } from "@/utils/logger"
-import { useUser } from "./useUser"
+import { useUser } from "./queries/useUser"
 
 const PusherContext = createContext<null | Pusher>(null)
 let pusherCached: null | Pusher = null

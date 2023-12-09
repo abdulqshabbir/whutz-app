@@ -9,9 +9,9 @@ import {
 } from "@/components/ui/DropdownMenu"
 
 import { channelAtom, friendEmailAtom, messagesAtom } from "@/atoms"
-import { useChannelId } from "@/hooks/useChannelId"
-import { useFriends } from "@/hooks/useFriends"
-import { useUser } from "@/hooks/useUser"
+import { useChannelId } from "@/hooks/queries/useChannelId"
+import { useFriends } from "@/hooks/queries/useFriends"
+import { useUser } from "@/hooks/queries/useUser"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
 import { useAtom, useSetAtom } from "jotai"
 import { LogOut, Settings, Users } from "lucide-react"
