@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { channelAtom, lastMessageRefAtom, messagesAtom } from "@/atoms"
 import { useAtomValue } from "jotai"
-import { useChannelMessages } from "./useChannelMessages"
+import { useChannelMessages } from "./queries/useChannelMessages"
 
 export const useScrollToBottomOfChat = () => {
   const lastMessageRef = useAtomValue(lastMessageRefAtom)

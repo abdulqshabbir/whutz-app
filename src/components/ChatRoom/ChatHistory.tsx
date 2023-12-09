@@ -1,6 +1,6 @@
 import { lastMessageRefAtom } from "@/atoms"
-import { useFriendNameAndImage } from "@/hooks/useFriendNameAndEmail"
-import { useUser } from "@/hooks/useUser"
+import { useFriendNameAndImage } from "@/hooks/queries/useFriendNameAndEmail"
+import { useUser } from "@/hooks/queries/useUser"
 import { useAtomValue } from "jotai"
 import React from "react"
 import { ChatHistorySkeleton } from "../ui/Skeleton"
