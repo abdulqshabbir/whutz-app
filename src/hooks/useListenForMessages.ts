@@ -7,6 +7,7 @@ import { z } from "zod"
 import { usePusher } from "./usePusher"
 import { useUser } from "./queries/useUser"
 import useSound from "use-sound"
+
 export function useListenForMessages() {
   const pusher = usePusher()
   const channel = useAtomValue(channelAtom)
