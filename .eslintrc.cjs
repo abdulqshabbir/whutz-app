@@ -25,7 +25,7 @@ const config = {
     ],
     "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
   },
-  ignorePatterns: ["tailwind.config.js"],
+  ignorePatterns: ["tailwind.config.js", "vitest.config.js"],
 }
 
 module.exports = config
