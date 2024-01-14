@@ -10,33 +10,13 @@ import { TRPCError } from "@trpc/server"
 import { and, eq, inArray, ne, sql } from "drizzle-orm"
 import { z } from "zod"
 import { getUserIdFromEmail } from "./pusher"
+import { UserController } from "../controllers/user.controller"
 
 export const userRouter = createTRPCRouter({
   getUserIdFromEmail: protectedProcedure
     .input(z.object({ email: z.string().email() }))
-    .query(async ({ input, ctx }) => {
-      const result = await db
-        .select()
-        .from(users)
-        .where(eq(users.email, input.email))
-        .get()
-
-      if (!result) {
-        logger({
-          message: "uuserRotuer.getUserIdFromEmail",
-          data: result,
-          level: "error",
-          email: ctx.session.user.email,
-        })
-      }
-
-      logger({
-        message: "userRotuer.getUserIdFromEmail",
-        data: result,
-        email: ctx.session.user.email,
-        level: "info",
-      })
-      return result?.id ?? null
+    .query(async ({ input }) => {
+      return UserController.getUserIdFromEmail({ email: input.email })
     }),
   sendFriendRequestV2: publicProcedure
     .input(
@@ -209,7 +189,7 @@ export const userRouter = createTRPCRouter({
         email: z.string().email(),
       })
     )
-    .query(async ({ input, ctx }) => {
+    .query(async ({ input , ctx }) => {
       const userId = await getUserIdFromEmail(input.email)
       if (!userId) {
         throw new TRPCError({

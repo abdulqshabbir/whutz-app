@@ -1,6 +1,4 @@
 import { sql } from "drizzle-orm"
-import { z } from "zod"
-import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 import {
   foreignKey,
   integer,
@@ -49,12 +47,6 @@ export const users = sqliteTable("users", {
   emailVerified: integer("emailVerified"),
   image: text("image"),
 })
-
-const userSchema = createSelectSchema(users)
-export type User = z.infer<typeof userSchema>
-
-const userInsertSchema = createInsertSchema(users)
-export type UserInsert = z.infer<typeof userInsertSchema>
 
 export const verificationToken = sqliteTable(
   "verificationToken",

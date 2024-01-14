@@ -5,7 +5,7 @@ function logger({
   email,
 }: {
   message: string
-  data: object | null | undefined
+  data: string | object | null | undefined
   level: "info" | "warn" | "error"
   email: string | null | undefined
 }) {
