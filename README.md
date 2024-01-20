@@ -20,7 +20,7 @@ WhutzApp is a realtime chat application built with Next JS (Typescript/Node JS/R
 - `Pusher (websocket service)`
 
 ##  🎥 Demo Video
-<video src="https://youtu.be/BvImlDa79ho" controls="controls" style="max-width: 730px;"></video>
+[![](https://markdown-videos-api.jorgenkh.no/youtube/BvImlDa79ho)](https://www.youtube.com/watch?v=BvImlDa79ho)
 
 ## 📚 What I Learned
 
