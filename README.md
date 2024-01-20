@@ -1,45 +1,68 @@
-# Create T3 App
+# 📱 WhutzApp - Chat Application
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+WhutzApp is a realtime chat application built with Next JS (Typescript/Node JS/React), tRPC, SQLite, Tailwind CSS, Pusher among other technologies. This chat app is designed originally for the web, but can also work on mobile devices.
 
-## Todo
+## 🚀 Features
 
-- [x] make it mobile responsive
-- [x] Refactor all api calls behind custom hooks
-- [x] support replies to images
-- [x] support replies to text
-- [x] support emojies
-- [ ] add e2e tests using playright or cypress
-- [ ] refactor backend-code into reusable services that are testable
-- [ ] add ability to create threads/channels that are public and users can subscribe to (will require changes at db level)
-- [ ] support video messages (and replies to video)
-- [ ] suppport audio messages (and replies to audio)
-- [ ] support PDF messages (and replies to PDF messages)
-- [ ] channel id (and how many of the latest messages user is vieweing) should be a part of the query string
+- 🗝 Sign in with Google (authentication)
+- 🗨 Create 1-on-1 conversations
+- 📬 Users can send text and images, reply to messages, and react with emojies
+- 🔔 Users get sound notifications for new unseen messages that arrive
+- 😂 Add emoji reactions to messages over websockets
 
-# Friend request flow
+## 🛠️ Main Technologies
+- `React`
+- `Next JS (full-stack framework)`
+- `tRPC (API)`
+- `SQLite (Database)`
+- `AWS S3 (object storage)`
+- `Tailwind CSS (styling)`
+- `Pusher (websocket service)`
 
-- [x] create a function `user.sendFriendRequest` which accepts an email address and adds an entry to the pendingFriendRequests table (userEmail, friendRequestEmail, status = 'pending')
-- [x] create a function `user.acceptFriendRequest` which accepts an email (friendRequestEmail) and finds the coresponding entry in the `pendingFriendRequests` table, change status to 'accepted', and add a new entry in the `userFriends` table `accept_friend_request`
-- [ ] create a function `user.getPendingFriendRequests` which lists all pending friend requests for a particuar user
-- [ ] create a fucntion `user.getConnections` which lists all users the
-- [ ] handle error/success states of api calls with toast notifications
-- [ ] make friend requests realtime using websockets
+##  🎥 Demo Video
+<video src="https://youtu.be/BvImlDa79ho" controls="controls" style="max-width: 730px;"></video>
 
-## How to run this project locally
+## 📚 What I Learned
 
+While completing this project, I deepened my understaning of how to write maintainable code for more complex systems.
+
+### Custom Hooks:
+
+- **Single Responsibility Principle**: Creating reusable hooks gave me an appreciation for how to build complex front-end systems by encapsulating reusable logic.  For example, I created the `usePusher` hook which was responsible for connecting to the Pusher (websocket service) client on the front-end and the `useScrollToBottomOfChat` hook which was responsible for scrolling to the bottom of the chat thread when new messages arrived as websocket events.
+
+### Object Storage:
+
+- **AWS S3**: Over the course of the project, I learned about how to create S3 bucket policies, create pre-signed URLs with upload conditions as well as using multipart form uploads on the front-end to directly upload to S3 servers.
+
+### Managing Complex State management
+- **Jotai**: As the project became more complex, using local state within React would require too much prop-drilling and React Context would force unnesssary re-renders of the entire application. So I reached for **Jotai** a minimal global state management solution that helped me solve the problem of global state management without the extra re-renders that would come with React context.
+
+### Type safety across my application
+- **tRPC**: This application uses tRPC as the API framework responsible for communicating between the front-end and back-end. Using tRPC made me really appreciate the power of typescript because I was able to validate my code from the database layer all the way to my front-end. This allowed me to move fast and make sweeping changes without having to worry about regressions.
+
+## 🤔 How Can It Be Improved?
+In terms of technical design, I'm currently in the process of refactoring my code to fully implement the *clean architecture* principles popularized by Robert Martin. My goal is to make sure I have clear layers of separation in my backend code for my entities, business logic (use cases), database access and other framework code.
+
+In terms of functionality, I would love to add the ability to have group chats and send voice messages using the app.
+
+## 🛠️ Contributing
+If you would like to contribute to the project or run it locally, you will need
+1. Create a turso account for the DB url
+2. Google client id and secret from the google console
+3. Pusher credentials for the front-end and back-end
+
+After these services are setup you can run:
 1. `git clone https://github.com/abdulqshabbir/whutz-app.git` (clone repo)
 2. `cd whutz-app` (move into project directory)
-3. Add a `.env` file to the project with all secrets
+3. Add a `.env` file to the project with all secrets from the steps above (see `.env.sample` for examples)
 4. `yarn` (install dependencies)
 5. `yarn dev` (start development server)
 6. Navigate to `http://localhost:3000` and `http://localhost:3000/signup` to see the project running
 7. Open a new terminal window and run `yarn studio` and click the link in the terminal to open up a GUI for interacting with the database
 
-Other optional commands:
+Please get in touch if you would like help running it locally. Ultimately, I would like to dockerize the application so it is easier to run in a local environment.
 
-- `yarn lint` to check for linting errors
-- `yarn prettier` to format code across entire project
-- `yarn pull` to pull in database changes into our drizzle schema (which is used for our db client in the application)
-- `yarn push` to push changes in our schema file up to our database and create corresponding tables
-- `yarn migrate` to create automatic migrations using drizzle
+## 🗨 Social Media/Contact Info
+- Twitter: https://twitter.com/abdulshabbirdev
+- Linked In: https://www.linkedin.com/in/abdul-shabbir-702881145/
+
