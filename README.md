@@ -1,14 +1,13 @@
 # 📱 WhutzApp - Chat Application
 
-WhutzApp is a realtime chat application built with Next JS (Typescript/Node JS/React), tRPC, SQLite, Tailwind CSS, Pusher among other technologies. This chat app is designed originally for the web, but can also work on mobile devices.
+WhutzApp is a realtime chat application built with Next JS (Node JS + React), tRPC, SQLite, Tailwind CSS, Pusher and other technologies. This chat app is designed originally for the web, but can also work on mobile devices.
 
 ## 🚀 Features
 
 - 🗝 Sign in with Google (authentication)
 - 🗨 Create 1-on-1 conversations
-- 📬 Users can send text and images, reply to messages, and react with emojies
+- 📬 Users can send text and images, reply to messages, and react with emojis
 - 🔔 Users get sound notifications for new unseen messages that arrive
-- 😂 Add emoji reactions to messages over websockets
 
 ## 🛠️ Main Technologies
 - `React`
@@ -24,11 +23,11 @@ WhutzApp is a realtime chat application built with Next JS (Typescript/Node JS/R
 
 ## 📚 What I Learned
 
-While completing this project, I deepened my understaning of how to write maintainable code for more complex systems.
+While completing this project, I deepened my understanding of how to write maintainable code for more complex systems.
 
 ### Custom Hooks:
 
-- **Single Responsibility Principle**: Creating reusable hooks gave me an appreciation for how to build complex front-end systems by encapsulating reusable logic.  For example, I created the `usePusher` hook which was responsible for connecting to the Pusher (websocket service) client on the front-end and the `useScrollToBottomOfChat` hook which was responsible for scrolling to the bottom of the chat thread when new messages arrived as websocket events.
+- **Single Responsibility Principle**: Creating reusable hooks gave me an appreciation for how to build complex front-end systems by encapsulating reusable logic.  For example, I created the `usePusher` hook which allowed for connecting to the Pusher (websocket service) client on the front-end and the `useScrollToBottomOfChat` hook which allowed for scrolling to the bottom of the chat thread when new messages arrived over websocket events.
 
 ### Object Storage:
 
@@ -46,10 +45,10 @@ In terms of technical design, I'm currently in the process of refactoring my cod
 In terms of functionality, I would love to add the ability to have group chats and send voice messages using the app.
 
 ## 🛠️ Contributing
-If you would like to contribute to the project or run it locally, you will need
+If you would like to contribute to the project or run it locally, you will need to:
 1. Create a turso account for the DB url
-2. Google client id and secret from the google console
-3. Pusher credentials for the front-end and back-end
+2. Get a Google client id and secret from the google console
+3. Get Pusher credentials for the front-end and back-end
 
 After these services are setup you can run:
 1. `git clone https://github.com/abdulqshabbir/whutz-app.git` (clone repo)
