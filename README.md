@@ -1,13 +1,13 @@
 # 📱 WhutzApp - Chat Application
 
-WhutzApp is a realtime chat application built with Next JS (Node JS + React), tRPC, SQLite, Tailwind CSS, Pusher and other technologies. This chat app is designed originally for the web, but can also work on mobile devices.
+WhutzApp is a realtime chat application built with Next JS (Node JS + React), tRPC, SQLite, Tailwind CSS, Pusher and other technologies. This chat app was designed originally for the web, but can also work on mobile devices.
 
 ## 🚀 Features
 
 - 🗝 Sign up or sign in with Google
 - 🗨 Create 1-on-1 conversations
 - 📬 Send text and images, reply to messages, and react with emojis
-- 🔔 Get sound notifications for new unseen messages that arrive
+- 🔔 Get sound notifications for new unseen messages that arrive (feature added by [Dmitry Kulakov](https://github.com/dmitrykulakovfrontend))
 
 ## 🛠️ Main Technologies
 - `React`
