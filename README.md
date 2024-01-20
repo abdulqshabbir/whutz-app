@@ -4,10 +4,10 @@ WhutzApp is a realtime chat application built with Next JS (Node JS + React), tR
 
 ## 🚀 Features
 
-- 🗝 Sign in with Google (authentication)
+- 🗝 Sign up or sign in with Google
 - 🗨 Create 1-on-1 conversations
-- 📬 Users can send text and images, reply to messages, and react with emojis
-- 🔔 Users get sound notifications for new unseen messages that arrive
+- 📬 Send text and images, reply to messages, and react with emojis
+- 🔔 Get sound notifications for new unseen messages that arrive
 
 ## 🛠️ Main Technologies
 - `React`
@@ -34,7 +34,7 @@ While completing this project, I deepened my understanding of how to write maint
 - **AWS S3**: Over the course of the project, I learned about how to create S3 bucket policies, create pre-signed URLs with upload conditions as well as using multipart form uploads on the front-end to directly upload to S3 servers.
 
 ### Managing Complex State management
-- **Jotai**: As the project became more complex, using local state within React would require too much prop-drilling and React Context would force unnesssary re-renders of the entire application. So I reached for **Jotai** a minimal global state management solution that helped me solve the problem of global state management without the extra re-renders that would come with React context.
+- **Jotai**: As the project became more complex, using local state within React would require too much prop-drilling and React Context would force unnesssary re-renders of the entire application. So I reached for **Jotai**, a minimal global state management solution, which helped solve the problem of global state management without the extra re-renders that would come with React context.
 
 ### Type safety across my application
 - **tRPC**: This application uses tRPC as the API framework responsible for communicating between the front-end and back-end. Using tRPC made me really appreciate the power of typescript because I was able to validate my code from the database layer all the way to my front-end. This allowed me to move fast and make sweeping changes without having to worry about regressions.
@@ -53,7 +53,7 @@ If you would like to contribute to the project or run it locally, you will need 
 After these services are setup you can run:
 1. `git clone https://github.com/abdulqshabbir/whutz-app.git` (clone repo)
 2. `cd whutz-app` (move into project directory)
-3. Add a `.env` file to the project with all secrets from the steps above (see `.env.sample` for examples)
+3. Add a `.env` file to the project with all secrets from the steps above (see `.env.example` for examples)
 4. `yarn` (install dependencies)
 5. `yarn dev` (start development server)
 6. Navigate to `http://localhost:3000` and `http://localhost:3000/signup` to see the project running
