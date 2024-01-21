@@ -2,6 +2,10 @@ import { ChatRoom } from "@/components/ChatRoom"
 import Head from "next/head"
 import Script from "next/script"
 import { AccountBar } from "@/components/AccountBar"
+import { useAtom } from "jotai"
+import { isChatThreadsListOpenAtom } from "@/atoms"
+import { ChatThreads } from "@/components/AccountDropdown"
+import { P } from "@/components/ui/typography/P"
 
 export default function Page() {
   return (
@@ -16,10 +20,22 @@ export default function Page() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Script src="https://js.pusher.com/8.2.0/pusher.min.js" />
-      <main className="flex h-screen flex-row flex-col sm:flex-row">
+      <main className="flex h-screen flex-col sm:flex-row">
         <AccountBar />
+        <ChatThreadsWrapper />
         <ChatRoom />
       </main>
     </>
+  )
+}
+
+export function ChatThreadsWrapper() {
+  const [isChatThreadsListOpen, setIsChatThreadsListOpen] = useAtom(isChatThreadsListOpenAtom)
+  if (!isChatThreadsListOpen) return null
+  return (
+    <div className="flex h-screen w-full max-w-[300px] flex-col items-stretch p-2 border-2">
+      <P className="text-md text-left pb-2">Chats</P>
+      <ChatThreads />
+    </div>
   )
 }

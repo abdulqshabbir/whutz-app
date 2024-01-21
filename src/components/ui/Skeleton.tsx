@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { Spinner } from "./Spinner"
 
 function Skeleton({
   className,
@@ -42,15 +43,12 @@ function MessageSkeleton({ from }: { from: "USER" | "FRIEND" }) {
 }
 
 function ChatHistorySkeleton() {
-  const NUM_MESSAGES = 10
-
-  const Messages = new Array(NUM_MESSAGES)
-    .fill(0)
-    .map((_, idx) => (
-      <MessageSkeleton key={idx} from={idx % 2 == 1 ? "FRIEND" : "USER"} />
-    ))
-
-  return Messages
+  return (
+    <div className="flex flex-col gap-4 justify-center items-center h-full w-full">
+      <div>fetching your messages...</div>
+      <Spinner />
+    </div>
+  ) 
 }
 
 export { Skeleton, AvatarSkeleton, MessageSkeleton, ChatHistorySkeleton }

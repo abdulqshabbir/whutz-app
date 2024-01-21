@@ -8,19 +8,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu"
 
-import { channelAtom, friendEmailAtom, messagesAtom } from "@/atoms"
-import { useChannelId } from "@/hooks/queries/useChannelId"
-import { useFriends } from "@/hooks/queries/useFriends"
 import { useUser } from "@/hooks/queries/useUser"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
-import { useAtom, useSetAtom } from "jotai"
-import { LogOut, Settings, Users } from "lucide-react"
+import { LogOut, Settings, Users, MessageSquareText, Book } from "lucide-react"
 import { signOut } from "next-auth/react"
 import { useRouter } from "next/router"
-import { useEffect } from "react"
 import { AddFriendDialog } from "./AddFriendDialog"
 import { AvatarSkeleton } from "./ui/Skeleton"
 import { Separator } from "./ui/separator"
+import { useAtom, useSetAtom } from "jotai"
+import { channelAtom, friendEmailAtom, messagesAtom } from "@/atoms"
+import { useChannelId } from "@/hooks/queries/useChannelId"
+import { useEffect } from "react"
+import { useFriends } from "@/hooks/queries/useFriends"
+import { P } from "./ui/typography/P"
+import { cn } from "@/lib/utils"
 
 export function AccountBarDropdown() {
   const router = useRouter()
@@ -72,12 +74,16 @@ export function AccountBarDropdown() {
       </DropdownMenu>
       <AddFriendDialog />
       <Separator className="hidden w-5/6 bg-gray-300 sm:flex" />
-      <FriendsList />
+      <ChatsLink />
+      <UsersLink />
+      <UsersBioLink />
+      <SettingsLink />
     </>
   )
 }
 
-function FriendsList() {
+
+export function ChatThreads() {
   const [friendEmail, setFriendEmail] = useAtom(friendEmailAtom)
   const setMessages = useSetAtom(messagesAtom)
   const setChannel = useSetAtom(channelAtom)
@@ -108,26 +114,78 @@ function FriendsList() {
     return null
   }
 
-  return friends.map((friend) => (
-    <div
-      key={friend.email}
-      className={`mt-2 flex max-h-[3rem] min-h-[2rem] min-w-[2rem] max-w-[3rem] cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-gray-300 ${
-        friendEmail === friend.email
-          ? " outline outline-4 outline-offset-2 outline-gray-400"
-          : ""
-      }`}
-      onClick={() => {
-        setFriendEmail(friend.email)
-        setMessages([])
-        void router.push("/")
-      }}
-    >
-      <Avatar className="cursor-pointer">
-        <AvatarImage src={friend.image ?? ""} alt="@shadcn" />
-        <AvatarFallback className="max-h-[3rem] min-h-[2rem] min-w-[2rem] max-w-[3rem] rounded-full bg-blue-200 p-4 hover:bg-blue-300">
-          {friend.name?.slice(0, 1)}
-        </AvatarFallback>
-      </Avatar>
+  return (
+    <div className="flex flex-col gap-2">
+      {friends.map((friend) => (
+        <div
+          className={cn("flex items-center gap-8 hover:bg-gray-100 hover:cursor-pointer p-3 rounded-md",
+            friend.email === friendEmail ? "bg-gray-200" : ""
+          )}
+          key={friend.email}
+          onClick={() => {
+            setFriendEmail(friend.email)
+            setMessages([])
+            void router.push("/")
+          }}
+        >
+          <div
+            className={`flex max-h-[3rem] min-h-[2rem] min-w-[2rem] max-w-[3rem] cursor-pointer items-center justify-center overflow-hidden rounded-full`}
+          >
+            <Avatar className="cursor-pointer">
+              <AvatarImage src={friend.image ?? ""} alt="@shadcn" />
+              <AvatarFallback className="max-h-[3rem] min-h-[2rem] min-w-[2rem] max-w-[3rem] rounded-full bg-blue-200 p-4 hover:bg-blue-300">
+                {friend.name?.slice(0, 1)}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+          <div className="flex flex-col">
+            <P>{friend.name}</P>
+            <P className="text-sm text-gray-400">Last Chat: some time</P>
+          </div>
+        </div>
+      ))
+      }
     </div>
-  ))
+  )
+}
+
+function LinkWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-center py-3 hover:bg-gray-300 hover:cursor-pointer w-full">
+      {children}
+    </div>
+  )
+}
+
+function ChatsLink() {
+  return (
+    <LinkWrapper>
+      <MessageSquareText />
+    </LinkWrapper>
+  )
+}
+
+function UsersLink() {
+
+  return (
+    <LinkWrapper>
+      <Users />
+    </LinkWrapper>
+  )
+}
+
+function UsersBioLink() {
+  return (
+    <LinkWrapper>
+      <Book />
+    </LinkWrapper>
+  )
+}
+
+function SettingsLink() {
+  return (
+    <LinkWrapper>
+      <Settings />
+    </LinkWrapper>
+  )
 }
