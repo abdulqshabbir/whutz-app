@@ -12,7 +12,8 @@
     "push": "drizzle-kit push:sqlite --config=./src/drizzle.config.ts",
     "migrate": "drizzle-kit generate:sqlite --schema=./src/lib/db/schema.ts",
     "studio": "drizzle-kit studio --config=./src/drizzle.config.ts",
-    "ts-lint": "tsc"
+    "ts-lint": "tsc",
+    "test": "vitest"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^0.3.0",
@@ -41,6 +42,7 @@
     "date-fns": "^2.30.0",
     "dotenv": "^16.3.1",
     "drizzle-orm": "^0.28.2",
+    "drizzle-zod": "^0.5.1",
     "framer-motion": "^10.16.1",
     "jotai": "^2.3.1",
     "lucide-react": "0.263.1",
@@ -79,7 +81,8 @@
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.2.8",
     "tailwindcss": "^3.3.3",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "vitest": "^1.0.4"
   },
   "ct3aMetadata": {
     "initVersion": "7.18.0"
