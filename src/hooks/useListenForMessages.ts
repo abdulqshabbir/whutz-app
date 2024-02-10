@@ -61,5 +61,6 @@ export function useListenForMessages() {
     return () => {
       pusherChannel.unbind("chunked-message", callback)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channel])
 }

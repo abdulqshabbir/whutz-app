@@ -25,6 +25,7 @@ export function bindWithChunking(
     final: boolean
   }
   channel.bind("chunked-" + event, (data: ChunkedData) => {
+    // eslint-disable-next-line no-prototype-builtins
     if (!events.hasOwnProperty(data.id)) {
       events[data.id] = { chunks: [], receivedFinal: false }
     }
