@@ -4,7 +4,7 @@ import { P } from "@/components/ui/typography/P"
 import Head from "next/head"
 import Image from "next/image"
 import Script from "next/script"
-import { SidebarContent } from "@/pages"
+import { ChatThreads } from "@/components/AccountDropdown"
 
 export default function Page() {
   return (
@@ -21,7 +21,7 @@ export default function Page() {
       <Script src="https://js.pusher.com/8.2.0/pusher.min.js" />
       <main className="flex h-screen flex-col sm:flex-row">
         <AccountBar />
-        <ChatThreadsWrapper />
+        <ChatThreads />
         <div className="flex h-screen w-full flex-col items-center justify-center">
           <div className="my-8 overflow-hidden rounded-lg">
             <Image src="/assets/icon.png" alt="" width={200} height={200} />

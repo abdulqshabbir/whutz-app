@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 
 export function ChatImageMessage({ imageUrl }: { imageUrl: string }) {
   return (

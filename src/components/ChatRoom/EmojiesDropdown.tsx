@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { trpc, type RouterInputs } from "@/utils/api"
 import { cn } from "@/lib/utils"
 import { type Dispatch, type SetStateAction } from "react"

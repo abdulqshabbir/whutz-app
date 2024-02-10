@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { AccountBar } from "@/components/AccountBar"
 import { Button } from "@/components/ui/Button"
 import { Separator } from "@/components/ui/separator"
