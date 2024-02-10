@@ -1,7 +1,7 @@
-import { cn } from "@/lib/utils"
 import { Spinner } from "./Spinner"
+import { cn } from "@/lib/utils"
 
-function Skeleton({
+export function Skeleton({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
@@ -12,11 +12,11 @@ function Skeleton({
         className
       )}
       {...props}
-    />
+    ></div>
   )
 }
 
-function AvatarSkeleton({ className }: { className?: string }) {
+export function AvatarSkeleton({ className }: { className?: string }) {
   return (
     <Skeleton
       className={cn(
@@ -27,28 +27,11 @@ function AvatarSkeleton({ className }: { className?: string }) {
   )
 }
 
-function MessageSkeleton({ from }: { from: "USER" | "FRIEND" }) {
+export function ChatHistorySkeleton() {
   return (
-    <div
-      className={`flex ${
-        from === "USER" ? "justify-end" : "justify-start"
-      } items-center`}
-    >
-      <AvatarSkeleton className={`mb-0 ${from === "FRIEND" ? "ml-4" : ""}`} />
-      <Skeleton
-        className={`mx-4 my-4 flex h-12 w-[80%] justify-end rounded-md bg-gray-300 p-4`}
-      />
+    <div className="flex h-full flex-col items-center justify-center gap-4">
+      <div>Loading chat...</div>
+      <Spinner />
     </div>
   )
 }
-
-function ChatHistorySkeleton() {
-  return (
-    <div className="flex flex-col gap-4 justify-center items-center h-full w-full">
-      <div>fetching your messages...</div>
-      <Spinner />
-    </div>
-  ) 
-}
-
-export { Skeleton, AvatarSkeleton, MessageSkeleton, ChatHistorySkeleton }

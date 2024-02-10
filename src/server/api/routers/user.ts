@@ -7,7 +7,7 @@ import {
 } from "@/server/api/trpc"
 import { logger } from "@/utils/logger"
 import { TRPCError } from "@trpc/server"
-import { and, eq, inArray, ne, sql } from "drizzle-orm"
+import { or, and, eq, inArray, like, ne, sql } from "drizzle-orm"
 import { z } from "zod"
 import { getUserIdFromEmail } from "./pusher"
 
@@ -325,5 +325,31 @@ export const userRouter = createTRPCRouter({
       return {
         ok: 1,
       }
+    }),
+  getAllUsers: protectedProcedure
+    .input(
+      z
+        .object({
+          userSearch: z.string().optional(),
+        })
+        .optional()
+    )
+    .query(async ({ input }) => {
+      if (input?.userSearch) {
+        return (
+          (await db
+            .select()
+            .from(users)
+            .where(
+              or(
+                like(users.email, `%${input.userSearch}%`),
+                like(users.name, `%${input.userSearch}%`)
+              )
+            )
+            .all()) ?? []
+        )
+      }
+
+      return (await db.select().from(users).all()) ?? []
     }),
 })

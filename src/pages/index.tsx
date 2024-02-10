@@ -2,10 +2,15 @@ import { ChatRoom } from "@/components/ChatRoom"
 import Head from "next/head"
 import Script from "next/script"
 import { AccountBar } from "@/components/AccountBar"
-import { useAtom } from "jotai"
-import { isChatThreadsListOpenAtom } from "@/atoms"
+import { useAtomValue } from "jotai"
+import { sidebarPageAtom } from "@/atoms"
 import { ChatThreads } from "@/components/AccountDropdown"
 import { P } from "@/components/ui/typography/P"
+import { motion } from "framer-motion"
+import { trpc } from "@/utils/api"
+import { Spinner } from "@/components/ui/Spinner"
+import { Input } from "@/components/ui/InputField"
+import { useState } from "react"
 
 export default function Page() {
   return (
@@ -22,20 +27,78 @@ export default function Page() {
       <Script src="https://js.pusher.com/8.2.0/pusher.min.js" />
       <main className="flex h-screen flex-col sm:flex-row">
         <AccountBar />
-        <ChatThreadsWrapper />
+        <SidebarContent />
         <ChatRoom />
       </main>
     </>
   )
 }
 
-export function ChatThreadsWrapper() {
-  const [isChatThreadsListOpen, setIsChatThreadsListOpen] = useAtom(isChatThreadsListOpenAtom)
-  if (!isChatThreadsListOpen) return null
+function SidebarContentWrapper({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen w-full max-w-[300px] flex-col items-stretch p-2 border-2">
-      <P className="text-md text-left pb-2">Chats</P>
-      <ChatThreads />
-    </div>
+    <motion.div className="flex h-screen w-full max-w-[400px] flex-col items-stretch border-2 p-2">
+      {children}
+    </motion.div>
   )
+}
+
+function UsersSidebarContent() {
+  const [userSearch, setUserSearch] = useState("")
+  const { data: users, isLoading } = trpc.user.getAllUsers.useQuery({
+    userSearch,
+  })
+
+  if (isLoading) {
+    return (
+      <SidebarContentWrapper>
+        <P className="text-md pb-2 text-left">Users</P>
+        <div className="flex h-full w-full flex-col items-center gap-4">
+          <div>fetching users...</div>
+          <Spinner />
+        </div>
+      </SidebarContentWrapper>
+    )
+  }
+  return (
+    <SidebarContentWrapper>
+      <P className="text-md pb-2 text-left">Users</P>
+      <Input type="text" onChange={(e) => setUserSearch(e.target.value)} />
+      {users && (
+        <ul>
+          {users.map((user) => (
+            <li key={user.id}>
+              <P>{user.name}</P>
+            </li>
+          ))}
+        </ul>
+      )}
+    </SidebarContentWrapper>
+  )
+}
+
+export function SidebarContent() {
+  const sidebarPage = useAtomValue(sidebarPageAtom)
+  if (sidebarPage === "chats") {
+    return (
+      <SidebarContentWrapper>
+        <P className="pb-2 text-left text-xl">Chats</P>
+        <ChatThreads />
+      </SidebarContentWrapper>
+    )
+  } else if (sidebarPage === "users") {
+    return <UsersSidebarContent />
+  } else if (sidebarPage === "settings") {
+    return (
+      <SidebarContentWrapper>
+        <P className="text-md pb-2 text-left">Settings</P>
+      </SidebarContentWrapper>
+    )
+  } else if (sidebarPage === "bio") {
+    return (
+      <SidebarContentWrapper>
+        <P className="text-md pb-2 text-left">Bio</P>
+      </SidebarContentWrapper>
+    )
+  }
+  return null
 }

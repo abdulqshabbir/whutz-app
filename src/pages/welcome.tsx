@@ -4,7 +4,7 @@ import { P } from "@/components/ui/typography/P"
 import Head from "next/head"
 import Image from "next/image"
 import Script from "next/script"
-import { ChatThreadsWrapper } from "@/pages"
+import { SidebarContent } from "@/pages"
 
 export default function Page() {
   return (

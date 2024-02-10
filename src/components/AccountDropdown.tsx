@@ -10,19 +10,25 @@ import {
 
 import { useUser } from "@/hooks/queries/useUser"
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar"
-import { LogOut, Settings, Users, MessageSquareText, Book } from "lucide-react"
+import { LogOut, Settings, Users, MessageSquare, Book } from "lucide-react"
 import { signOut } from "next-auth/react"
 import { useRouter } from "next/router"
 import { AddFriendDialog } from "./AddFriendDialog"
 import { AvatarSkeleton } from "./ui/Skeleton"
 import { Separator } from "./ui/separator"
-import { useAtom, useSetAtom } from "jotai"
-import { channelAtom, friendEmailAtom, messagesAtom } from "@/atoms"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import {
+  channelAtom,
+  friendEmailAtom,
+  messagesAtom,
+  sidebarPageAtom,
+} from "@/atoms"
 import { useChannelId } from "@/hooks/queries/useChannelId"
 import { useEffect } from "react"
 import { useFriends } from "@/hooks/queries/useFriends"
 import { P } from "./ui/typography/P"
 import { cn } from "@/lib/utils"
+import { motion } from "framer-motion"
 
 export function AccountBarDropdown() {
   const router = useRouter()
@@ -82,12 +88,10 @@ export function AccountBarDropdown() {
   )
 }
 
-
 export function ChatThreads() {
   const [friendEmail, setFriendEmail] = useAtom(friendEmailAtom)
   const setMessages = useSetAtom(messagesAtom)
   const setChannel = useSetAtom(channelAtom)
-  const router = useRouter()
   const { channelId } = useChannelId({
     friendEmail,
     shouldFetch: Boolean(friendEmail),
@@ -117,15 +121,19 @@ export function ChatThreads() {
   return (
     <div className="flex flex-col gap-2">
       {friends.map((friend) => (
-        <div
-          className={cn("flex items-center gap-8 hover:bg-gray-100 hover:cursor-pointer p-3 rounded-md",
+        <motion.div
+          initial={{ x: -100 }}
+          animate={{ x: 0 }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.95 }}
+          className={cn(
+            "flex items-center gap-8 rounded-md p-3 hover:cursor-pointer hover:bg-gray-100",
             friend.email === friendEmail ? "bg-gray-200" : ""
           )}
           key={friend.email}
           onClick={() => {
             setFriendEmail(friend.email)
             setMessages([])
-            void router.push("/")
           }}
         >
           <div
@@ -139,52 +147,81 @@ export function ChatThreads() {
             </Avatar>
           </div>
           <div className="flex flex-col">
-            <P>{friend.name}</P>
-            <P className="text-sm text-gray-400">Last Chat: some time</P>
+            <P className="text-lg font-light">{friend.name}</P>
+            <P className="text-sm text-gray-500">Last Chat: some time</P>
           </div>
-        </div>
-      ))
-      }
+        </motion.div>
+      ))}
     </div>
   )
 }
 
-function LinkWrapper({ children }: { children: React.ReactNode }) {
+type LinkWrapperProps = JSX.IntrinsicElements["div"] & {
+  children: React.ReactNode
+  isActive: boolean
+}
+
+function LinkWrapper({ children, isActive, ...props }: LinkWrapperProps) {
   return (
-    <div className="flex items-center justify-center py-3 hover:bg-gray-300 hover:cursor-pointer w-full">
+    <div
+      {...props}
+      className="relative flex w-full items-center justify-center py-3 hover:cursor-pointer hover:bg-gray-300"
+    >
+      {isActive && (
+        <div className="absolute left-0 top-0 h-full w-1 bg-blue-500"></div>
+      )}
       {children}
     </div>
   )
 }
 
 function ChatsLink() {
+  const setSidebarPage = useSetAtom(sidebarPageAtom)
+  const sidebarPage = useAtomValue(sidebarPageAtom)
   return (
-    <LinkWrapper>
-      <MessageSquareText />
+    <LinkWrapper
+      onClick={() => setSidebarPage("chats")}
+      isActive={sidebarPage === "chats"}
+    >
+      <MessageSquare />
     </LinkWrapper>
   )
 }
 
 function UsersLink() {
-
+  const setSidebarPage = useSetAtom(sidebarPageAtom)
+  const sidebarPage = useAtomValue(sidebarPageAtom)
   return (
-    <LinkWrapper>
+    <LinkWrapper
+      onClick={() => setSidebarPage("users")}
+      isActive={sidebarPage === "users"}
+    >
       <Users />
     </LinkWrapper>
   )
 }
 
 function UsersBioLink() {
+  const setSidebarPage = useSetAtom(sidebarPageAtom)
+  const sidebarPage = useAtomValue(sidebarPageAtom)
   return (
-    <LinkWrapper>
+    <LinkWrapper
+      onClick={() => setSidebarPage("bio")}
+      isActive={sidebarPage === "bio"}
+    >
       <Book />
     </LinkWrapper>
   )
 }
 
 function SettingsLink() {
+  const setSidebarPage = useSetAtom(sidebarPageAtom)
+  const sidebarPage = useAtomValue(sidebarPageAtom)
   return (
-    <LinkWrapper>
+    <LinkWrapper
+      onClick={() => setSidebarPage("settings")}
+      isActive={sidebarPage === "settings"}
+    >
       <Settings />
     </LinkWrapper>
   )
